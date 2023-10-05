@@ -32,6 +32,7 @@ print("2. " ,ReLU.derivative(ReLU,np.array([5,7])))
 print("3. " ,TanH.derivative(TanH,np.array([5,7])))
 
 
+print()
 
 
 '''
