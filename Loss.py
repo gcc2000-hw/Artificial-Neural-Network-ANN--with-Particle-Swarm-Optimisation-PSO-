@@ -1,4 +1,5 @@
 import numpy as np
+from Activation import *
 
 class Loss:
     def __init__(self, expected, predicted):

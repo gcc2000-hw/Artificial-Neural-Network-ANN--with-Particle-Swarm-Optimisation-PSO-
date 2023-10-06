@@ -32,9 +32,6 @@ print("2. " ,ReLU.derivative(ReLU,np.array([5,7])))
 print("3. " ,TanH.derivative(TanH,np.array([5,7])))
 
 
-print()
-
-
 '''
 References
 1. https://dustinstansbury.github.io/theclevermachine/derivation-common-neural-network-activation-functions
