@@ -15,6 +15,11 @@ class Layer:
     def backward(self, delta, rate):
 
         # dz is the derivative of the weighted sum
-        dz = Activation.derivative(self.W* self.X_in) * delta
+        dz = Activation.derivative(self.W * self.X_in) * delta
         # dw is the derivative of the
         dw = self.X_in * dz
+        db = dz
+        delta = self.W * dz
+        self.W -= rate * dw
+        self.B-= rate * db
+        return delta
