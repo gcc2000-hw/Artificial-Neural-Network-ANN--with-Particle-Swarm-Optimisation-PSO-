@@ -3,8 +3,8 @@ from Activation import *
 
 class Loss:
     def __init__(self, expected, predicted):
-        self.predicted = predicted
         self.expected = expected
+        self.predicted = predicted
     def Evaluate(self):
         pass
     def Derivate(self):
