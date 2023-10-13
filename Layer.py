@@ -1,11 +1,12 @@
+import numpy as np
 from Activation import Activation
 
 class Layer:
-    def __init__(self, nodes, input, weight, bias, activation):
+    def __init__(self, nodes, activation):
         self.nodes = nodes
         self.X_in = input
-        self.W = weight
-        self.B = bias
+        self.W = [np.random()]
+        self.B = 1
         self.activation = activation
 
     def forward(self, X_in):
