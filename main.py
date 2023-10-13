@@ -13,7 +13,7 @@ X, Y = UCI_auth_data[:, :4], UCI_auth_data[:, 4]
 Y = Y.astype(int)
 
 # Shuffling & train/test split
-shuffle_idx = np.arange(y.shape[0])
+shuffle_idx = np.arange(Y.shape[0])
 shuffle_rng = np.random.RandomState(123)
 shuffle_rng.shuffle(shuffle_idx)
 X, Y = X[shuffle_idx], Y[shuffle_idx]
