@@ -10,13 +10,13 @@ class Activation:
         pass
 
 class Sigmoid(Activation):
-    def evaluation(weighted_sum):
+    def evaluation(self, weighted_sum):
         return 1/(1+np.exp(-weighted_sum))
     def derivative(self, weighted_sum):
-       return self.evaluation(weighted_sum) * (1 - self.evaluation(weighted_sum))
+       return self.evaluation(self, weighted_sum) * (1 - self.evaluation(self, weighted_sum))
         
 class ReLU(Activation):
-    def evaluation(weighted_sum):
+    def evaluation(self, weighted_sum):
         return weighted_sum * (weighted_sum > 0)
     def derivative(self, x):
         x[x<=0] = 0
@@ -24,10 +24,10 @@ class ReLU(Activation):
         return x
     
 class TanH(Activation):
-    def evaluation(weighted_sum):
+    def evaluation(self, weighted_sum):
         return np.tanh(weighted_sum)
     def derivative(self, weighted_sum):
-        return (1 - (self.evaluation(weighted_sum)**2))
+        return (1 - (self.evaluation(self,weighted_sum)**2))
 
 print("1." ,Sigmoid.derivative(Sigmoid,np.array([5,7])))
 print("2. " ,ReLU.derivative(ReLU,np.array([5,7])))

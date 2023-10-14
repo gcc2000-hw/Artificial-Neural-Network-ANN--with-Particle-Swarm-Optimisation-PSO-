@@ -7,3 +7,4 @@ class ANNBuilder:
         for i in range(nb_layers):
             layer = Layer(list_nodes[i], list_functions[i])
             ann.append(layer)
+        return ann

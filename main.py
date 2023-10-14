@@ -22,5 +22,5 @@ print(X,Y)
 print(X.shape, " " , Y.shape)
 
 
-ann= ANNBuilder.build(3,np.array([2,3,3]),[Sigmoid(Activation),Sigmoid(Activation),Sigmoid(Activation)])
+ann= ANNBuilder.build(3,np.array([2,2,3]),[1,1,1])
 loss, accuracy = mini_batch(ann, UCI_auth_data, np.array([0,1]), 7, 0.0001, Mse, 196)

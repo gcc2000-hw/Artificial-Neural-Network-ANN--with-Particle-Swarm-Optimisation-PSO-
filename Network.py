@@ -1,5 +1,5 @@
 class Network:
-    def __init__(self) -> None:
+    def __init__(self):
         self.layers = []
     def append(self, layer):
         self.layers.append(layer)
