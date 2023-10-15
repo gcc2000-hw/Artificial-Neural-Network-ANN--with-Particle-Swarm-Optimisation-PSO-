@@ -8,25 +8,28 @@ activation_map = {
 #2,1 
 class Layer:
     def __init__(self, nodes, activation):
-        print(nodes,  "  fjjfjf")
         self.nodes = nodes
         self.X_in = input
-        self.W = np.random.randn(nodes)
-        print(self.W , " : W")
-        self.B = 1
+        self.W = np.random.uniform(-1, 1, (nodes,4))
+        self.B = np.random.uniform(-1, 1, nodes)
         self.activation_fn = activation_map[activation]
+        self.dw = np.zeros((nodes,4))
+        self.db = np.zeros(nodes)
 
     def forward(self, X_in):
+        print(np.size(X_in))
         self.X_in = X_in
-        out = self.activation_fn.evaluation(np.dot(self.W, X_in)+self.B)
+        weighted_sum = np.dot(self.W, X_in)+self.B
+        out = Sigmoid.evaluation(Activation, weighted_sum)
+        # out = Activation(self, np.dot(self.W, X_in)+self.B)
         return out
-    def backward(self, delta, rate):
-        # dz is the derivative of the weighted sum
-        dz = self.activation_fn.derivative(self.W * self.X_in) * delta
-        # dw is the derivative of the
-        dw = self.X_in * dz
-        db = dz
-        delta = self.W * dz
-        self.W -= rate * dw
-        self.B-= rate * db
-        return delta
+    # def backward(self, delta, rate):
+    #     # dz is the derivative of the weighted sum
+    #     dz = self.activation_fn.derivative(self.W * self.X_in) * delta
+    #     # dw is the derivative of the
+    #     dw = self.X_in * dz
+    #     db = dz
+    #     delta = self.W * dz
+    #     self.W -= rate * dw
+    #     self.B-= rate * db
+    #     return delta

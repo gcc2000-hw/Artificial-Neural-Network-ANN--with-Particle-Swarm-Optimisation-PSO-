@@ -1,3 +1,4 @@
+import numpy as np
 class Network:
     def __init__(self):
         self.layers = []
@@ -8,6 +9,6 @@ class Network:
         for layer in self.layers:
             out = layer.forward(out)
         return out
-    def backpropagate(self, delta, rate):
-        for layer in self.layers.reverse():
-            delta = layer.backpropagate(delta, rate)
+    # def backpropagate(self, delta, rate):
+    #     for layer in self.layers.reverse():
+    #         delta = layer.backpropagate(delta, rate)

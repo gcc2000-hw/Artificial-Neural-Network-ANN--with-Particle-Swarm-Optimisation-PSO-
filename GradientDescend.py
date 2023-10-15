@@ -1,3 +1,4 @@
+import numpy as np
 def getTrue(classes, x):
     return classes[x]
 
@@ -15,7 +16,6 @@ def base_gd(ann, data, classes, rate, loss):
     dL = 0
     accuracy = 0
     for i in data:
-        print(i, " :  THISSS")
         # gets output after forward propogation
         y = ann.forward(i)
         t = getTrue(classes, i)
@@ -32,7 +32,6 @@ def base_gd(ann, data, classes, rate, loss):
     return L, accuracy
 
 def gd(ann, data, classes, epochs, rate, loss, batch_size):
-    print(ann, "Exists")
     L = 0
     accuracy = 0
     batches = createBatches(data, classes, batch_size)

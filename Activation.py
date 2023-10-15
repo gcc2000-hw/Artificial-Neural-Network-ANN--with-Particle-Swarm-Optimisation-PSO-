@@ -29,10 +29,10 @@ class TanH(Activation):
     def derivative(self, weighted_sum):
         return (1 - (self.evaluation(self,weighted_sum)**2))
 
-print("1." ,Sigmoid.derivative(Sigmoid,np.array([5,7])))
-print("2. " ,ReLU.derivative(ReLU,np.array([5,7])))
-print("3. " ,TanH.derivative(TanH,np.array([5,7])))
-print(ReLU.derivative(ReLU,np.array([1,-2,3,4])))
+# print("1." ,Sigmoid.derivative(Sigmoid,np.array([5,7])))
+# print("2. " ,ReLU.derivative(ReLU,np.array([5,7])))
+# print("3. " ,TanH.derivative(TanH,np.array([5,7])))
+# print(ReLU.derivative(ReLU,np.array([1,-2,3,4])))
 '''
 References
 1. https://dustinstansbury.github.io/theclevermachine/derivation-common-neural-network-activation-functions
