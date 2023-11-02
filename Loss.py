@@ -11,10 +11,10 @@ class Loss:
         pass
 
 class Mse(Loss):
-    def Evaluate(self):
-        return 1/2(np.square(self.expected - self.predicted))
-    def Derivate(self):
-        return self.expected - self.predicted
+    def Evaluate(expected, predicted):
+        return 1/2 * (np.square(expected - predicted))
+    # def Derivate(self):
+    #     return self.expected - self.predicted
 
 class BinaryCrossEntropyLoss(Loss):
     def Evaluate(self):

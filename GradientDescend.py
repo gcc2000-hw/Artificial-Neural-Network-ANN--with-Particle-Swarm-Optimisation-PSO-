@@ -13,22 +13,22 @@ def createBatches(data, classes, batch_size):
 
 def base_gd(ann, data, classes, rate, loss):
     L = 0
-    dL = 0
     accuracy = 0
-    for i in data:
+    c =0
+    for index in range(len(data)):
+        print(c,"helo")
+        c+=1
+        i = data[index]
         # gets output after forward propogation
+        t = classes[index]
         y = ann.forward(i)
-        t = getTrue(classes, i)
-        L+= loss.evaluate(y, t)
-        dL += loss.Derivate(y,t)
-        accuracy += 1 if y == t else 0
+
+        L+= loss.Evaluate(y, t)
+        accuracy += 1 if np.array_equal(y, t) else 0
     
-    L /= len(data)
-    dL /= len(data)
     accuracy /= len(data)
 
     # backpropagation to be changed to PSO
-    ann.backpropagate(dL, rate)
     return L, accuracy
 
 def gd(ann, data, classes, epochs, rate, loss, batch_size):
