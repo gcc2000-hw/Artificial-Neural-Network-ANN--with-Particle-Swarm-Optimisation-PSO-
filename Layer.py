@@ -18,12 +18,8 @@ class Layer:
         self.db = np.zeros(nodes)
 
     def forward(self, X_in):
-        print(np.size(X_in), ": X_in Size")
-        print(np.size(self.W), ": Weight")
-        print(np.size(self.B)," : Bias")
         self.X_in = X_in
         weighted_sum = np.dot(self.W, X_in)+self.B
-        print(self.W)
         out = self.activation_fn.evaluation(self,weighted_sum)
         # out = Activation(self, np.dot(self.W, X_in)+self.B)
         return out

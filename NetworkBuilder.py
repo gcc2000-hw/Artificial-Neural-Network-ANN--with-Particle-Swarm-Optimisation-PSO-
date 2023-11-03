@@ -2,9 +2,8 @@ from Network import Network
 from Layer import Layer
 
 class ANNBuilder:
-    def build(nb_layers, list_nodes, list_functions):
+    def build(nb_layers, list_nodes, list_functions, input_size):
         ann = Network()
-        input_size = 4
         for i in range(nb_layers):
             if i > 0:
                 input_size = list_nodes[i - 1]
