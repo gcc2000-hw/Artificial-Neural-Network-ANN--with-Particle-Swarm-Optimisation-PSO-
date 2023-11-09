@@ -14,6 +14,7 @@ class Layer:
         self.W = np.random.uniform(-1, 1, (nodes, input_size))
         self.B = np.random.uniform(-1, 1, nodes)
         self.activation_fn = activation_map[activation]
+        self.output = 0
         self.dw = np.zeros((nodes,input_size))
         self.db = np.zeros(nodes)
 
@@ -21,16 +22,10 @@ class Layer:
         self.X_in = X_in
         weighted_sum = np.dot(self.W, X_in)+self.B
         out = self.activation_fn.evaluation(self,weighted_sum)
+        self.output = out
         # out = Activation(self, np.dot(self.W, X_in)+self.B)
         return out
-
-
-
-
-
-
-
-
+    
     # def backward(self, delta, rate):
     #     # dz is the derivative of the weighted sum
     #     dz = self.activation_fn.derivative(self.W * self.X_in) * delta

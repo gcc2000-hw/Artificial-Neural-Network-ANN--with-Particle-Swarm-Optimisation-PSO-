@@ -22,7 +22,6 @@ def base_gd(ann, data, classes, rate, loss):
         # gets output after forward propogation
         t = classes[index]
         y = ann.forward(i)
-
         L+= loss.Evaluate(y, t)
         accuracy += 1 if np.array_equal(y, t) else 0
     
