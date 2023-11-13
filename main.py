@@ -7,11 +7,11 @@ from Activation import *
 from GradientDescend import *
 from Layer import *
 
-
+data=pd.read_csv("data_banknote_authentication.txt", delimiter=",")
 UCI_auth_data = np.genfromtxt("data_banknote_authentication.txt", delimiter=",")
-X, Y = UCI_auth_data[:, :4], UCI_auth_data[:, 4]
-
-Y = Y.astype(int)
+Ycol = data.columns[-1];
+X = data.drop(Ycol,axis=1).values
+Y = data[Ycol].values
 
 # Shuffling & train/test split
 shuffle_idx = np.arange(Y.shape[0])
