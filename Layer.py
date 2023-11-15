@@ -20,7 +20,7 @@ class Layer:
 
     def forward(self, X_in):
         self.X_in = X_in
-        weighted_sum = np.dot(self.W, X_in)+self.B
+        weighted_sum = np.dot(self.W, X_in)+self.B[:, np.newaxis]
         out = self.activation_fn.evaluation(self,weighted_sum)
         self.output = out
         # out = Activation(self, np.dot(self.W, X_in)+self.B)

@@ -1,8 +1,8 @@
 import numpy as np
 class Particle:
-    def __init__(self,func,optimP = "min"):
-        self.func = func
-        self.dim = func.get_dimension()
+    def __init__(self,adapter,optimP):
+        self.adapter = adapter
+        self.dim = len(adapter.get_param())
         self.position = np.random.randn(self.dim)
         self.velocity = np.random.randn(self.dim)
         self.pbestPos = self.position.copy()
@@ -10,12 +10,16 @@ class Particle:
         self.fit = 0
         self.neighbours = []
         self.optimizationP = optimP
-
-    def get_neighbours(self,neighbors):
+        self.lbestPos = self.position.copy()
+        self.lFit = -np.inf if optimP == "max" else self.fit
+#Set the neighbors
+    def set_neighbours(self,neighbors):
         self.neighbours = neighbors
 
+    # Update pbest position, pbest 
     def get_fit(self):
-        self.fit = self.func(self.position)
+        self.adapter.set_param(self.position)
+        self.fit = self.adapter.evaluate(self.position)
         if self.pFit is None:
             self.pFit = self.fit
         else:
@@ -28,20 +32,26 @@ class Particle:
                     self.pbestPos = self.position.copy()
 
 
-
-    def update_velocity(self,alpha,beta,gamma,delta,lbest_pos,gbest_pos):
+#Update velocity
+    def update_velocity(self,alpha,beta,gamma,delta,gbestPos):
         r1 = np.random.rand(self.dim)
         r2 = np.random.rand(self.dim)
         r3 = np.random.rand(self.dim)
         inertia_comp = alpha * self.velocity
         cog_comp = beta * (self.pbestPos - self.position)
-        social_comp = gamma * (lbest_pos - self.position)
-        global_comp = delta * (gbest_pos - self.position)
+        social_comp = gamma * (self.lbestPos - self.position)
+        global_comp = delta * (gbestPos - self.position)
         self.velocity = inertia_comp + (r1*cog_comp) + (r2*social_comp) + (r3*global_comp)
-
+#Move particle
     def update_position(self):
-        self.position = np.add(self.position,self.velocity)
+        self.position = self.position + self.velocity
+    
+    def is_lbest(self):
+        match self.optimizationP:
+            case "min" if self.fit < self.lFit:
+                self.lFit = self.fit
+                self.lbestPos = self.position.copy()
+            case "max" if self.fit > self.lFit:
+                self.lFit = self.fit
+                self.lbestPos = self.position.copy()
 
-    # calculate loss and update l_best, p_best and g_best
-    def get_loss():
-        pass

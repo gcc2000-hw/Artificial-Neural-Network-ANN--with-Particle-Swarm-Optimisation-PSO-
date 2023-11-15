@@ -13,19 +13,19 @@ class Loss:
 class Mse(Loss):
     def Evaluate(expected, predicted):
         return 1/2 * (np.square(expected - predicted))
-    # def Derivate(self):
-    #     return self.expected - self.predicted
+    def Derivate(self):
+        return self.expected - self.predicted
 
 class BinaryCrossEntropyLoss(Loss):
-    def Evaluate(self):
-        term0 = (1-self.expected) * np.log(1-self.expected + 1e-7) 
-        term1 = self.predicted * np.log(self.expected + 1e-7) 
+    def Evaluate(expected, predicted):
+        term0 = (1-expected) * np.log(1-expected + 1e-7) 
+        term1 = predicted * np.log(expected + 1e-7) 
         return -(term0 + term1)
-    def Derivate(self):
-        return self.predicted/self.expected + (1 - self.predicted)/(1-self.expected)
+    def Derivate(expected, predicted):
+        return predicted/expected + (1 - predicted)/(1-expected)
 
 class Hinge(Loss):
-    def Evaluate(self):
-        return np.mean(np.maximum(0, 1- self.expected * self.predicted))
-    def Derivate(self):
-        return np.where(self.expected*self.predicted<1,-self.expected,0)
+    def Evaluate(expected, predicted):
+        return np.mean(np.maximum(0, 1-expected * predicted))
+    def Derivate(expected, predicted):
+        return np.where(expected*predicted<1,-expected,0)
