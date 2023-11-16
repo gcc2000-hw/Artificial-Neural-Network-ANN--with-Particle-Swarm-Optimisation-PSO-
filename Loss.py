@@ -23,6 +23,10 @@ class BinaryCrossEntropyLoss(Loss):
         return -(term0 + term1)
     def Derivate(expected, predicted):
         return predicted/expected + (1 - predicted)/(1-expected)
+    
+class CrossEntropyLoss(Loss):
+    def Evaluate(self):
+        
 
 class Hinge(Loss):
     def Evaluate(expected, predicted):
