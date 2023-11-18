@@ -10,7 +10,7 @@ from Swarm import Swarm
 from Adapter import adapter
 from sklearn.model_selection import train_test_split 
 
-data=pd.read_csv("iris.data", delimiter=",")
+data=pd.read_csv("data_banknote_authentication.txt", delimiter=",")
 UCI_auth_data = np.genfromtxt("data_banknote_authentication.txt", delimiter=",")
 Ycol = data.columns[-1];
 X = data.drop(Ycol,axis=1).values
@@ -27,10 +27,10 @@ def evaluate_ann(params, ann, X, Y, loss_function):
     return mean_loss
 
 # PSO params
-alpha = 0.5    
-beta = 0.8    
-gamma = 0.9   
-delta = 0.4  
+alpha = 0.2
+beta = 1.0 
+gamma = 2.0   
+delta = 1.0
 population_size = 100
 iterations = 100
 neighborhood_size = 9
@@ -45,7 +45,7 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_
 ann = ANNBuilder.build(3, np.array([2, 2, 5]), np.array([1, 2, 1]), initial_input)
 initial_params = ann.get_param()
 Adapter = adapter(lambda params: evaluate_ann(params,ann,X_train,Y_train,BinaryCrossEntropyLoss),initial_params)
-swarm = Swarm(Adapter, alpha, beta, gamma, delta,population_size, iterations, neighborhood_size, optimP,"r")
+swarm = Swarm(Adapter, alpha, beta, gamma, delta,population_size, iterations, neighborhood_size, optimP,"h")
 
 # Run the optimization
 swarm.optimize() 

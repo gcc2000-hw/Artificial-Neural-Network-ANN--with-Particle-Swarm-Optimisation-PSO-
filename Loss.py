@@ -26,6 +26,7 @@ class BinaryCrossEntropyLoss(Loss):
     
 class CrossEntropyLoss(Loss):
     def Evaluate(self):
+        pass
         
 
 class Hinge(Loss):
