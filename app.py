@@ -4,8 +4,17 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 from Loss import *
+from NetworkBuilder import ANNBuilder
 from main import train_pso, test_pso, train_gradient_descent
 
+# import matplotlib.pyplot as plt
+# import networkx as nx
+
+activation_map_ui = {
+    "Sigmoid": 1,
+    "ReLU": 2,
+    "TanH": 3
+}
 
 # Function to load data
 def load_data(uploaded_file):
@@ -34,25 +43,25 @@ def preprocess_data(data, train_size):
     
 
 # Function to train the model
-def train_model(data, method, train_size):
-
-    X_train, X_test, Y_train, Y_test = preprocess_data(data, train_size=train_size)
+def train_model(method):
+    ann = st.session_state.get('ann', None)
+    if not ann:
+        st.warning("ANN not initialized. Please build the ANN first.")
+        return None
 
     if method == "PSO":
-        # Particle Swarm Optimization parameters
-        ann = train_pso(X_train, Y_train, population_size, iterations, alpha, beta, gamma, delta, neighborhood_size, optimization_problem)
+        ann = train_pso(ann, X_train, Y_train, population_size, iterations, alpha, beta, gamma, delta, neighborhood_size, optimization_problem)
         accuracy = test_pso(ann, X_test, Y_test)
         return accuracy 
-
+    
     elif method == "Gradient Descent":
-        loss, accuracy = train_gradient_descent(X_train, Y_train, gd_method, epochs, learning_rate, BinaryCrossEntropyLoss, batch_size)
+        loss, accuracy = train_gradient_descent(ann, X_train, Y_train, gd_method, epochs, learning_rate, BinaryCrossEntropyLoss, batch_size)
         result = f"Training Loss: {loss}, Accuracy: {accuracy}"
         return result
     
-    # Return results like accuracy or loss
 
 
-# Streamlit UI
+# UI
 st.title("ANN with PSO and Gradient Descent")
 
 # File uploader
@@ -60,12 +69,39 @@ uploaded_file = st.file_uploader(
     "Choose a CSV file or use default dataset", type="csv")
 data = load_data(uploaded_file)
 
+
 if st.checkbox("Show Data"):
     st.subheader("Dataset")
     st.dataframe(data)
 
 #Train-Test split
-train_size = st.slider("Train-test size", min_value=0.1, max_value=0.9, value=0.8, step=0.1)
+st.subheader("Train-Test Split")
+train_size = st.slider("Training data size", min_value=0.1, max_value=0.9, value=0.8, step=0.1)
+X_train, X_test, Y_train, Y_test = preprocess_data(data, train_size)
+
+#Initialize ANN
+st.subheader("Build your ANN")
+num_layers = st.number_input("Number of Layers", min_value=1, max_value=10, value=3)
+layer_nodes = []
+list_activation = []
+for i in range(num_layers):
+    nodes = st.number_input(f"Nodes in layer {i+1}", min_value=1, max_value=100, value=3, key=f"layer_{i+1}")
+    layer_nodes.append(nodes)
+    activation_fn_name = st.selectbox(f"Activation function for layer {i+1}", list(activation_map_ui.keys()), key=f"activation_{i+1}")
+    activation_fn = activation_map_ui[activation_fn_name] 
+    list_activation.append(activation_fn)
+  
+
+#Initialize ANN button
+if st.button("Build ANN"):
+    # X_train, X_test, Y_train, Y_test = preprocess_data(data, train_size=train_size)
+    initial_input = np.size(X_train[0])
+    ann = ANNBuilder.build(num_layers,np.array(layer_nodes),np.array(list_activation), initial_input)
+    st.session_state['ann'] = ann
+    st.write("ANN Initialized")
+
+st.markdown("---")
+
 # Method selection
 method = st.selectbox("Choose the training method:",
                       ["PSO", "Gradient Descent"])
@@ -91,6 +127,7 @@ elif method == "Gradient Descent":
         batch_size = st.number_input('Batch Size', min_value=1, max_value=100, value=32)
 
 # Train button
+
 if st.button("Train Model"):
-    result = train_model(data, method, train_size)
+    result = train_model(method)
     st.write("Fitness: ",result)  # Display results

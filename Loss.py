@@ -5,10 +5,10 @@ class Loss:
     def __init__(self, expected, predicted):
         self.expected = expected
         self.predicted = predicted
-    def Evaluate(self):
-        pass
-    def Derivate(self):
-        pass
+    # def Evaluate(self):
+    #     pass
+    # def Derivate(self):
+    #     pass
 
 class Mse(Loss):
     def Evaluate(expected, predicted):

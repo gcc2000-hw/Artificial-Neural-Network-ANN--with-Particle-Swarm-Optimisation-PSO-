@@ -27,10 +27,10 @@ def evaluate_ann(params, ann, X, Y, loss_function):
     mean_loss = np.mean(losses)  # Aggregate the losses into a single value
     return mean_loss
 
-def train_pso(X_train, Y_train, population_size = 100, iterations = 100, alpha = 0.2, beta = 1.0, gamma = 2.0,  delta = 1.0, neighborhood_size = 9, optimP = "min"):
+def train_pso(ann, X_train, Y_train, population_size = 100, iterations = 100, alpha = 0.2, beta = 1.0, gamma = 2.0,  delta = 1.0, neighborhood_size = 9, optimP = "min"):
     # Shuffling & train/test split
     initial_input = np.size(X[0])
-    ann = ANNBuilder.build(3, np.array([1, 3, 3]), np.array([3, 1, 2]), initial_input)
+    # ann = ANNBuilder.build(3, np.array([1, 3, 3]), np.array([3, 1, 2]), initial_input)
     initial_params = ann.get_param()
     Adapter = adapter(lambda params: evaluate_ann(params,ann,X_train,Y_train,BinaryCrossEntropyLoss),initial_params)
     swarm = Swarm(Adapter, alpha, beta, gamma, delta,population_size, iterations, neighborhood_size, optimP,"h")
@@ -47,9 +47,9 @@ def test_pso(ann, X_test, Y_test):
     print(f"Accuracy on test set: {accuracy}")
     return accuracy
 
-def train_gradient_descent(X_train, Y_train, method='mini_batch', epochs=7, rate=0.01, loss = BinaryCrossEntropyLoss,  batch_size=32):
+def train_gradient_descent(ann, X_train, Y_train, method='mini_batch', epochs=7, rate=0.01, loss = BinaryCrossEntropyLoss,  batch_size=32):
     initial_input = np.size(X[0])
-    ann = ANNBuilder.build(3, [1, 3, 3], [3, 1, 2], initial_input)
+    # ann = ANNBuilder.build(3, [1, 3, 3], [3, 1, 2], initial_input)
     if (method == 'mini_batch'):
         loss, accuracy = mini_batch(ann, X_train, Y_train, epochs, rate, loss, batch_size)
     elif (method == 'dgd'):
@@ -82,7 +82,7 @@ ann= ANNBuilder.build(3,np.array([2,2,3]),np.array([1,2,1]), initial_input)
 # print(loss)
 # print(accuracy)
 # Train the network
-loss, accuracy = train_gradient_descent(X_train, Y_train, method='mini_batch', epochs=7, rate=0.01, loss=Mse, batch_size=32)
+loss, accuracy = train_gradient_descent(ann,X_train, Y_train, method='mini_batch', epochs=7, rate=0.01, loss=Mse, batch_size=32)
 print("Training Loss:", loss)
 print("Training Accuracy:", accuracy)
 # Test the network
