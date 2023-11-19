@@ -23,6 +23,6 @@ class Network:
             start_section = end
     def get_dimension(self):
         return len(self.get_param())
-    def backpropagate(self, delta, rate):
+    def backward(self, delta, rate):
         for layer in reversed(self.layers):
-            delta = layer.backpropagate(delta, rate)
+            delta = layer.backward(delta, rate)

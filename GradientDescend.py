@@ -24,10 +24,13 @@ def base_gd(ann, data, classes, rate, loss):
         y = ann.forward(i)
         L+= loss.Evaluate(y, t)
         accuracy += 1 if np.array_equal(y, t) else 0
-    
-    accuracy /= len(data)
 
     # backpropagation to be changed to PSO
+    loss_gradient = loss.Derivate(y, t)
+    ann.backward(loss_gradient, rate)
+
+    accuracy /= len(data)
+    
     return L, accuracy
 
 def gd(ann, data, classes, epochs, rate, loss, batch_size):
@@ -41,10 +44,10 @@ def gd(ann, data, classes, epochs, rate, loss, batch_size):
         # in each epoch go through every batch in batches
         for batch in batches:
             # get the loss and accuracy for the current batch
-            batch_loss, batch_accurancy = base_gd(ann, batch[0], batch[1], rate, loss)
+            batch_loss, batch_accuracy = base_gd(ann, batch[0], batch[1], rate, loss)
             # add that to the epoch loss and accuracy
             epoch_loss += batch_loss
-            epoch_accuracy += batch_accurancy
+            epoch_accuracy += batch_accuracy
         # getting average loss and accuracy for the epoch
         L += epoch_loss/len(batches)
         accuracy += epoch_accuracy/len(batches)

@@ -13,8 +13,8 @@ class Loss:
 class Mse(Loss):
     def Evaluate(expected, predicted):
         return 1/2 * (np.square(expected - predicted))
-    def Derivate(self):
-        return self.expected - self.predicted
+    def Derivate(expected, predicted):
+        return expected - predicted
 
 class BinaryCrossEntropyLoss(Loss):
     def Evaluate(expected, predicted):
