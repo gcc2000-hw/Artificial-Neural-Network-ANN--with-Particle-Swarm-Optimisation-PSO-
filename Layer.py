@@ -26,13 +26,18 @@ class Layer:
         # out = Activation(self, np.dot(self.W, X_in)+self.B)
         return out
     
-    # def backward(self, delta, rate):
-    #     # dz is the derivative of the weighted sum
-    #     dz = self.activation_fn.derivative(self.W * self.X_in) * delta
-    #     # dw is the derivative of the
-    #     dw = self.X_in * dz
-    #     db = dz
-    #     delta = self.W * dz
-    #     self.W -= rate * dw
-    #     self.B-= rate * db
-    #     return delta
+    def backward(self, output_gradient, rate):
+        # dz is the derivative
+        dz = self.activation_fn.derivative(self, self.output)
+        delta = output_gradient * dz
+
+        input_gradient = np.dot(self.W.T, delta)
+        # dw is the derivative of the weighted sum
+        dw = np.dot(delta, self.X_in.T)
+        # db is the derivative of the bias
+        db = np.sum(delta, axis=1, keepdims=True)
+        delta = self.W * dz
+        self.W -= rate * dw
+        self.B -= rate * db
+
+        return input_gradient

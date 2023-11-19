@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 
 data=pd.read_csv("data_banknote_authentication.txt", delimiter=",")
 UCI_auth_data = np.genfromtxt("data_banknote_authentication.txt", delimiter=",")
-Ycol = data.columns[-1];
+Ycol = data.columns[-1]
 X = data.drop(Ycol,axis=1).values
 Y = data[Ycol].values
 if(isinstance(Y[0],str)):
@@ -43,20 +43,29 @@ X, Y = X[shuffle_idx], Y[shuffle_idx]
 initial_input = np.size(X[0])
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 ann = ANNBuilder.build(3, np.array([2, 2, 5]), np.array([1, 2, 1]), initial_input)
-initial_params = ann.get_param()
-Adapter = adapter(lambda params: evaluate_ann(params,ann,X_train,Y_train,BinaryCrossEntropyLoss),initial_params)
-swarm = Swarm(Adapter, alpha, beta, gamma, delta,population_size, iterations, neighborhood_size, optimP,"h")
+# initial_params = ann.get_param()
+# Adapter = adapter(lambda params: evaluate_ann(params,ann,X_train,Y_train,BinaryCrossEntropyLoss),initial_params)
+# swarm = Swarm(Adapter, alpha, beta, gamma, delta,population_size, iterations, neighborhood_size, optimP,"h")
 
-# Run the optimization
-swarm.optimize() 
+# # Run the optimization
+# swarm.optimize() 
 
-ann.update_param(swarm.gbestPos)
+# ann.update_param(swarm.gbestPos)
 
-prediction = ann.forward(X_test.T)
-predicted_labels = np.round(prediction)
+# prediction = ann.forward(X_test.T)
+# predicted_labels = np.round(prediction)
+# accuracy = np.mean(predicted_labels == Y_test)
+# print(f"Accuracy on test set: {accuracy}")
+
+mini_batch(ann, X_train, Y_train, 10, 0.01, BinaryCrossEntropyLoss, 100)
+
+# Evaluate the model
+predictions = ann.forward(X_test.T)
+predicted_labels = np.round(predictions)
 accuracy = np.mean(predicted_labels == Y_test)
 print(f"Accuracy on test set: {accuracy}")
 
 # print(f"Best solution found: x = {swarm.gbestPos}, f(x) = {swarm.gFit}")
 # ann= ANNBuilder.build(3,np.array([2,2,3]),np.array([1,2,1]), initial_input)
 # loss, accuracy = mini_batch(ann, X, Y, 7, 0.0001, Mse, 196)
+# print(loss)
