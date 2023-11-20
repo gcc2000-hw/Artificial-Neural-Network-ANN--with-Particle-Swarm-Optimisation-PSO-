@@ -20,6 +20,8 @@ if(isinstance(Y[0],str)):
     D = {label : i for i,label in enumerate(unique_labels)}
     Y = Y_mapped
 
+def data_type():
+    pass
 def evaluate_ann(params, ann, X, Y, loss_function):
     ann.update_param(params)
     predictions = ann.forward(X.T)
@@ -68,7 +70,8 @@ def test_gradient_descent(ann, X_test, Y_test):
     return accuracy
 
 shuffle_idx = np.arange(Y.shape[0])
-shuffle_rng = np.random.RandomState(123)
+SEED = 123
+shuffle_rng = np.random.seed(123)
 shuffle_rng.shuffle(shuffle_idx)
 X, Y = X[shuffle_idx], Y[shuffle_idx]
 
@@ -76,14 +79,14 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_
 
 # print(f"Best solution found: x = {swarm.gbestPos}, f(x) = {swarm.gFit}")
 initial_input = np.size(X[0])
-ann= ANNBuilder.build(3,np.array([2,2,1]),np.array([1,2,1]), initial_input)
+ann= ANNBuilder.build(3,np.array([2,2,3]),np.array([1,1,1]), initial_input)
 # test_gradient_descent(ann, X_test, Y_test) 
 # train_gradient_descent(X_train, Y_train, method='mini_batch', epochs=7, rate=0.01, loss = Mse,  batch_size=32)
 # loss, accuracy = mini_batch(ann, X, Y, 7, 0.0001, Mse, 196)
 # print(loss)
 # print(accuracy)
 # Train the network
-loss, accuracy = train_gradient_descent(ann,X_train, Y_train, method='dgd', epochs=7, rate=0.01, loss=Mse)
+loss, accuracy = train_gradient_descent(ann,X_train, Y_train, method='dgd', epochs=50, rate=0.0001, loss=Mse)
 print("Training Loss:", loss)
 print("Training Accuracy:", accuracy)
 # Test the network

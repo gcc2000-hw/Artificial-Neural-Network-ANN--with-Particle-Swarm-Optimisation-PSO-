@@ -14,6 +14,7 @@ def createBatches(data, classes, batch_size):
 def base_gd(ann, data, classes, rate, loss):
     L = 0
     accuracy = 0
+    threshold = 0.5
     c =0
     for index in range(len(data)):
         print(c,"helo")
@@ -23,10 +24,13 @@ def base_gd(ann, data, classes, rate, loss):
         t = classes[index]
         y = ann.forward(i)
         L+= loss.Evaluate(y, t)
-        accuracy += 1 if np.array_equal(y, t) else 0
-        print("Y",y)
+        print("L::::" ,L)
+        prediction = 1 if np.argmax(y)> threshold else 0
+        accuracy += 1 if prediction == t else 0
+        print("pred",prediction)
         print("T",t)
-        print(np.array_equal(y, t))
+        print(prediction == t)
+        print("----------------------------------")
         print(accuracy)
 
     # backpropagation to be changed to PSO
@@ -34,8 +38,9 @@ def base_gd(ann, data, classes, rate, loss):
     ann.backward(loss_gradient, rate)
 
     accuracy /= len(data)
+    avg_loss = L/len(data)
     
-    return L, accuracy
+    return avg_loss, accuracy
 
 def gd(ann, data, classes, epochs, rate, loss, batch_size):
     L = 0
@@ -57,10 +62,10 @@ def gd(ann, data, classes, epochs, rate, loss, batch_size):
         accuracy += epoch_accuracy/len(batches)
 
     # calculating average loss and accuracy over all the epochs
-    L/= epochs
-    accuracy/=epochs
+    avg_loss = L/epochs
+    avg_accuracy = accuracy/epochs
 
-    return L, accuracy
+    return avg_loss , avg_accuracy
 
 def mini_batch(ann, data, classes, epochs, rate, loss, batch_size):
     L, accuracy = gd(ann, data, classes, epochs, rate, loss, batch_size)

@@ -56,7 +56,8 @@ def train_model(method):
     
     elif method == "Gradient Descent":
         loss, accuracy = train_gradient_descent(ann, X_train, Y_train, gd_method, epochs, learning_rate, BinaryCrossEntropyLoss, batch_size)
-        result = f"Training Loss: {loss}, Accuracy: {accuracy}"
+        print("HERE:::" , loss)
+        result = f"Training Loss: {float(loss[0])}, Accuracy: {accuracy}"
         return result
     
 
