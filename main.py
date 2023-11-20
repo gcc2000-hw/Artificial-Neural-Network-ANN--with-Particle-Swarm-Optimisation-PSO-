@@ -70,8 +70,7 @@ def test_gradient_descent(ann, X_test, Y_test):
     return accuracy
 
 shuffle_idx = np.arange(Y.shape[0])
-SEED = 123
-shuffle_rng = np.random.seed(123)
+shuffle_rng = np.random.RandomState(123)
 shuffle_rng.shuffle(shuffle_idx)
 X, Y = X[shuffle_idx], Y[shuffle_idx]
 
