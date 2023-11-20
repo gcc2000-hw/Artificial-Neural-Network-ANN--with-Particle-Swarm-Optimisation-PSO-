@@ -29,13 +29,13 @@ def evaluate_ann(params, ann, X, Y, loss_function):
     mean_loss = np.mean(losses)  # Aggregate the losses into a single value
     return mean_loss
 
-def train_pso(ann, X_train, Y_train, population_size = 100, iterations = 100, alpha = 0.2, beta = 1.0, gamma = 2.0,  delta = 1.0, neighborhood_size = 9, optimP = "min"):
+def train_pso(ann, X_train, Y_train, population_size = 100, iterations = 100, alpha = 0.2, beta = 1.0, gamma = 2.0,  delta = 1.0, neighborhood_size = 9, optimP = "min", informant_type = "r"):
     # Shuffling & train/test split
     initial_input = np.size(X[0])
     # ann = ANNBuilder.build(3, np.array([1, 3, 3]), np.array([3, 1, 2]), initial_input)
     initial_params = ann.get_param()
     Adapter = adapter(lambda params: evaluate_ann(params,ann,X_train,Y_train,BinaryCrossEntropyLoss),initial_params)
-    swarm = Swarm(Adapter, alpha, beta, gamma, delta,population_size, iterations, neighborhood_size, optimP,"h")
+    swarm = Swarm(Adapter, alpha, beta, gamma, delta,population_size, iterations, neighborhood_size, optimP, informant_type)
 
     # Run the optimization
     swarm.optimize() 

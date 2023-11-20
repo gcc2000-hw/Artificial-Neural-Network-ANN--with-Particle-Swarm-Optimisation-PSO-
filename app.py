@@ -7,7 +7,8 @@ from Loss import *
 from NetworkBuilder import ANNBuilder
 from main import train_pso, test_pso, train_gradient_descent
 
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+import random
 # import networkx as nx
 
 activation_map_ui = {
@@ -16,10 +17,59 @@ activation_map_ui = {
     "TanH": 3
 }
 
+informant_type_map= {
+    "Random" : "r",
+    "Distance": "d",
+    "Hybrid" : "h"
+}
+
+# Generate a raondom color in hex
+def generate_random_color():
+    return "#" + ''.join([random.choice('0123456789ABCDEF') for _ in range(6)])
+
+# Function to draw neural network
+# Code from https://gist.github.com/craffel/2d727968c3aaebd10359
+def draw_neural_net(ax, left, right, bottom, top, layer_sizes): 
+    n_layers = len(layer_sizes)
+    v_spacing = (top - bottom)/float(max(layer_sizes))
+    h_spacing = (right - left)/float(len(layer_sizes) - 1)
+
+    layer_colors = [generate_random_color() for _ in range(n_layers)]
+
+    # Nodes
+    for n, layer_size in enumerate(layer_sizes):
+        layer_top = v_spacing*(layer_size - 1)/2. + (top + bottom)/2.
+        for m in range(layer_size):
+            circle = plt.Circle((n*h_spacing + left, layer_top - m*v_spacing), v_spacing/4.,
+                                color=layer_colors[n], ec='k', zorder=4)
+            ax.add_artist(circle)
+    # Edges
+    for n, (layer_size_a, layer_size_b) in enumerate(zip(layer_sizes[:-1], layer_sizes[1:])):
+        layer_top_a = v_spacing*(layer_size_a - 1)/2. + (top + bottom)/2.
+        layer_top_b = v_spacing*(layer_size_b - 1)/2. + (top + bottom)/2.
+        for m in range(layer_size_a):
+            for o in range(layer_size_b):
+                line = plt.Line2D([n*h_spacing + left, (n + 1)*h_spacing + left],
+                                  [layer_top_a - m*v_spacing, layer_top_b - o*v_spacing], c='k')
+                ax.add_artist(line)
+
+# Function to plot the graph
+def plot_neural_network(layer_sizes):
+    fig = plt.figure(figsize=(12, 12))
+    ax = fig.gca()
+    ax.axis('off')
+    draw_neural_net(ax, .1, .9, .1, .9, layer_sizes)
+    return fig
+
 # Function to load data
 def load_data(uploaded_file):
     if uploaded_file is not None:
-        return pd.read_csv(uploaded_file)
+        if uploaded_file.name.endswith('.csv'):
+            return pd.read_csv(uploaded_file)
+        elif uploaded_file.name.endswith('.txt'):
+            return pd.read_csv(uploaded_file, delimiter=',')
+        elif uploaded_file.name.endswith('.data'):
+            return pd.read_csv(uploaded_file, delimiter=',')
     else:
         # Load default dataset
         return pd.read_csv("data_banknote_authentication.txt")
@@ -50,7 +100,7 @@ def train_model(method):
         return None
 
     if method == "PSO":
-        ann = train_pso(ann, X_train, Y_train, population_size, iterations, alpha, beta, gamma, delta, neighborhood_size, optimization_problem)
+        ann = train_pso(ann, X_train, Y_train, population_size, iterations, alpha, beta, gamma, delta, neighborhood_size, optimization_problem, informant_type)
         accuracy = test_pso(ann, X_test, Y_test)
         return accuracy 
     
@@ -67,7 +117,7 @@ st.title("ANN with PSO and Gradient Descent")
 
 # File uploader
 uploaded_file = st.file_uploader(
-    "Choose a CSV file or use default dataset", type="csv")
+    "Choose a CSV or TXT file", type=["csv", "txt", "data"])
 data = load_data(uploaded_file)
 
 
@@ -100,6 +150,8 @@ if st.button("Build ANN"):
     ann = ANNBuilder.build(num_layers,np.array(layer_nodes),np.array(list_activation), initial_input)
     st.session_state['ann'] = ann
     st.write("ANN Initialized")
+    fig = plot_neural_network(layer_nodes)
+    st.pyplot(fig)
 
 st.markdown("---")
 
@@ -118,6 +170,7 @@ if method == "PSO":
     delta = st.number_input("Delta", min_value=0.0, max_value=2.0, value=1.0)
     neighborhood_size = st.number_input("Neighbourhood Size", min_value=5, max_value=20, value= 9)
     optimization_problem = st.selectbox("Optimization Problem", ["min", "max"])
+    informant_type = st.selectbox("Informant Type", list(informant_type_map.keys()))
 elif method == "Gradient Descent":
     # Gradient Descent Hyperparameters
     st.subheader("Gradient Descent Hyperparameters")
