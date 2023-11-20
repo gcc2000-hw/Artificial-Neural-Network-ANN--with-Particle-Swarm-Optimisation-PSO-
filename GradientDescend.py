@@ -15,22 +15,15 @@ def base_gd(ann, data, classes, rate, loss):
     L = 0
     accuracy = 0
     threshold = 0.5
-    c =0
     for index in range(len(data)):
-        print(c,"helo")
-        c+=1
         i = data[index]
         # gets output after forward propogation
         t = classes[index]
         y = ann.forward(i)
         L+= loss.Evaluate(y, t)
-        print("L::::" ,L)
-        prediction = 1 if np.argmax(y)> threshold else 0
+        prediction = 1 if np.argmax(y)>= threshold else 0
         accuracy += 1 if prediction == t else 0
-        print("pred",prediction)
-        print("T",t)
         print(prediction == t)
-        print("----------------------------------")
         print(accuracy)
 
     # backpropagation to be changed to PSO
