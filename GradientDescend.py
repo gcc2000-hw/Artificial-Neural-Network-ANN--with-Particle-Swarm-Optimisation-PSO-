@@ -24,6 +24,10 @@ def base_gd(ann, data, classes, rate, loss):
         y = ann.forward(i)
         L+= loss.Evaluate(y, t)
         accuracy += 1 if np.array_equal(y, t) else 0
+        print("Y",y)
+        print("T",t)
+        print(np.array_equal(y, t))
+        print(accuracy)
 
     # backpropagation to be changed to PSO
     loss_gradient = loss.Derivate(y, t)
