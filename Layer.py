@@ -29,15 +29,12 @@ class Layer:
         return out
     
     def backward(self, output_gradient, rate):
-        print("Output gradient shape:", output_gradient.shape)
-        print("Input (X_in) shape:", self.X_in.shape)
         # dz is the derivative
         dz = self.activation_fn.derivative(self.output)
         # weighted_sum = np.dot(self.W, self.X_in) + self.B
         # dz = self.activation_fn.derivative(weighted_sum)
         
         delta = output_gradient * dz
-        print("Delta shape:", delta.shape)
         if dz is None:
             raise ValueError("The derivative of the activation function returned None.")
         

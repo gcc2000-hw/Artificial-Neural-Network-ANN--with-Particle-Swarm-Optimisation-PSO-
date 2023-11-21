@@ -1,6 +1,20 @@
 import numpy as np
+
+
 def getTrue(classes, x):
     return classes[x]
+
+def evaluate_ann(params, ann, X, Y, loss_function):
+    ann.update_param(params)
+    predictions = ann.forward(X.T)
+    losses = loss_function.Evaluate(Y, predictions)
+    mean_loss = np.mean(losses) 
+
+    predicted_labels = np.round(predictions)
+    correct_predictions = np.sum(predicted_labels == Y)
+    accuracy = correct_predictions / len(Y) 
+
+    return mean_loss, accuracy
 
 def createBatches(data, classes, batch_size):
     batches = []
@@ -13,63 +27,84 @@ def createBatches(data, classes, batch_size):
 
 def base_gd(ann, data, classes, rate, loss):
     L = 0
-    accuracy = 0
-    threshold = 0.5
+    loss_gradient = 0
+    correct_predictions = 0
     for index in range(len(data)):
         i = data[index]
         # gets output after forward propogation
         t = classes[index]
         y = ann.forward(i)
-        L+= loss.Evaluate(y, t)
-        prediction = 1 if np.argmax(y)>= threshold else 0
-        accuracy += 1 if prediction == t else 0
-        print(prediction == t)
-        print(accuracy)
+        print("y =" , y)
+        L+= np.mean(loss.Evaluate(y, t))
 
-    # backpropagation to be changed to PSO
-    loss_gradient = loss.Derivate(y, t)
-    ann.backward(loss_gradient, rate)
+        prediction = np.round(y)
+        if prediction == t:
+            correct_predictions += 1
 
-    accuracy /= len(data)
+        # backpropagation to be changed to PSO
+        loss_gradient = loss.Derivate(y, t)
+        ann.backward(loss_gradient, rate)
+
     avg_loss = L/len(data)
-    
+    accuracy = correct_predictions / len(data)
+
     return avg_loss, accuracy
 
-def gd(ann, data, classes, epochs, rate, loss, batch_size):
+def gd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss, batch_size):
     L = 0
-    accuracy = 0
-    batches = createBatches(data, classes, batch_size)
+    accuracy_list = []
+    loss_list = []
+    val_loss_list = []
+    val_accuracy_list = []
+    batches = createBatches(X_train, Y_train, batch_size)
     # for each epoch
     for epoch in range(epochs):
         epoch_loss = 0
-        epoch_accuracy = 0
+        epoch_correct_predictions = 0
+        total_samples = 0
         # in each epoch go through every batch in batches
-        for batch in batches:
+        for batch_data, batch_classes in batches:
             # get the loss and accuracy for the current batch
-            batch_loss, batch_accuracy = base_gd(ann, batch[0], batch[1], rate, loss)
+            batch_loss, batch_accuracy = base_gd(ann, batch_data, batch_classes, rate, loss)
             # add that to the epoch loss and accuracy
             epoch_loss += batch_loss
-            epoch_accuracy += batch_accuracy
+            epoch_correct_predictions += batch_accuracy * len(batch_data)
+            total_samples += len(batch_data)
         # getting average loss and accuracy for the epoch
-        L += epoch_loss/len(batches)
-        accuracy += epoch_accuracy/len(batches)
+        epoch_loss_avg = epoch_loss / len(batches)
+        epoch_accuracy = epoch_correct_predictions / total_samples
+
+        accuracy_list.append([epoch, epoch_accuracy])
+        loss_list.append([epoch, epoch_loss_avg])
+
+        val_loss, val_accuracy = evaluate_ann(ann.get_param(), ann, X_val, Y_val, loss)
+        val_accuracy_list.append([epoch, val_accuracy])
+        val_loss_list.append([epoch, val_loss])
+        print(f"Epoch {epoch}: Train Acc = {epoch_accuracy}, Val Acc = {val_accuracy}")
+
+        
 
     # calculating average loss and accuracy over all the epochs
-    avg_loss = L/epochs
-    avg_accuracy = accuracy/epochs
+    avg_loss =sum([i[1] for i in loss_list]) / epochs
+    avg_accuracy = sum([i[1] for i in accuracy_list]) / epochs
 
-    return avg_loss , avg_accuracy
+    return avg_loss , avg_accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list
 
-def mini_batch(ann, data, classes, epochs, rate, loss, batch_size):
-    L, accuracy = gd(ann, data, classes, epochs, rate, loss, batch_size)
-    return L, accuracy
+# HEREEE
+# y = [[0.5586343 ]
+#  [0.53935224]
+#  [0.65263914]]
+# idk its there for every loop this is hhe last one
+def mini_batch(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss, batch_size):
+    L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list = gd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss, batch_size)
+    return L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list
 
 # Decentralized Gradient Descent
-def dgd(ann, data, classes, epochs, rate, loss):
-    L, accuracy = gd(ann, data, classes, epochs, rate, loss, data.size)
-    return L, accuracy
+def dgd(ann, data, X_train, Y_train, X_val, Y_val, epochs, rate, loss):
+    L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list = gd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss, data.size)
+    return L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list
 
 # Stochastic Gradient Descent
-def sgd(ann, data, classes, epochs, rate, loss):
-    L, accuracy = gd(ann, data, classes, epochs, rate, loss, 1)
-    return L, accuracy
+def sgd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss):
+    L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list = gd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss, 1)
+    return L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list

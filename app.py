@@ -53,7 +53,7 @@ def draw_neural_net(ax, left, right, bottom, top, layer_sizes):
                                   [layer_top_a - m*v_spacing, layer_top_b - o*v_spacing], c='k')
                 ax.add_artist(line)
 
-# Function to plot the graph
+# Function to plot the ANN
 def plot_neural_network(layer_sizes):
     fig = plt.figure(figsize=(12, 12))
     ax = fig.gca()

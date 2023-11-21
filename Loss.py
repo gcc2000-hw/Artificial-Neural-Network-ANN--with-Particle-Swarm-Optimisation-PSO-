@@ -14,15 +14,19 @@ class Mse(Loss):
     def Evaluate(expected, predicted):
         return 1/2 * (np.square(expected - predicted))
     def Derivate(expected, predicted):
-        return expected - predicted
+        return predicted - expected
 
 class BinaryCrossEntropyLoss(Loss):
     def Evaluate(expected, predicted):
-        term0 = (1-expected) * np.log(1-expected + 1e-7) 
-        term1 = predicted * np.log(expected + 1e-7) 
+        epsilon = 1e-15
+        predicted = np.clip(predicted, epsilon, 1 - epsilon)
+        term0 = (1-expected) * np.log(1-predicted) 
+        term1 = expected * np.log(predicted) 
         return -(term0 + term1)
     def Derivate(expected, predicted):
-        return predicted/expected + (1 - predicted)/(1-expected)
+        epsilon = 1e-15
+        predicted = np.clip(predicted, epsilon, 1 - epsilon)
+        return (predicted - expected) / (predicted * (1 - predicted))
     
 class CrossEntropyLoss(Loss):
     def Evaluate(self):
