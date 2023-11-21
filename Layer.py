@@ -1,5 +1,5 @@
 import numpy as np
-from Activation import Sigmoid, ReLU, TanH, Activation
+from Activation import Sigmoid, ReLU, TanH
 
 activation_map = {
         1: Sigmoid,
@@ -11,8 +11,14 @@ class Layer:
     def __init__(self, nodes, input_size, activation):
         self.nodes = nodes
         # self.X_in = input
-        self.W = np.random.uniform(-1, 1, (nodes, input_size))
-        self.B = np.random.uniform(-1, 1, nodes)
+        if(activation != ReLU):
+            self.W = np.random.randn(nodes, input_size) * np.sqrt(1. / input_size)
+        elif(activation == Sigmoid or activation == TanH):
+            self.W = np.random.randn(nodes, input_size) * np.sqrt(2. / input_size)
+        else:
+            self.W = np.random.uniform(-0.1, 0.1, (nodes, input_size))
+
+        self.B = np.zeros(nodes)
         self.activation_fn = activation_map[activation]
         self.output = 0
         self.dw = np.zeros((nodes,input_size))

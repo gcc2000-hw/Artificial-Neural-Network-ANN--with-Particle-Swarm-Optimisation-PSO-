@@ -5,7 +5,7 @@ def getTrue(classes, x):
     return classes[x]
 
 def evaluate_ann(params, ann, X, Y, loss_function):
-    ann.update_param(params)
+    # ann.update_param(params)
     predictions = ann.forward(X.T)
     losses = loss_function.Evaluate(Y, predictions)
     mean_loss = np.mean(losses) 
@@ -38,8 +38,7 @@ def base_gd(ann, data, classes, rate, loss):
         L+= np.mean(loss.Evaluate(y, t))
 
         prediction = np.round(y)
-        if prediction == t:
-            correct_predictions += 1
+        correct_predictions += (prediction == t).all()
 
         # backpropagation to be changed to PSO
         loss_gradient = loss.Derivate(y, t)
@@ -81,8 +80,6 @@ def gd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss, batch_size):
         val_accuracy_list.append([epoch, val_accuracy])
         val_loss_list.append([epoch, val_loss])
         print(f"Epoch {epoch}: Train Acc = {epoch_accuracy}, Val Acc = {val_accuracy}")
-
-        
 
     # calculating average loss and accuracy over all the epochs
     avg_loss =sum([i[1] for i in loss_list]) / epochs

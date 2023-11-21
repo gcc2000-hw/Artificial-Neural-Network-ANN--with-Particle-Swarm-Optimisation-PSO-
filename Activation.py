@@ -32,6 +32,21 @@ class TanH(Activation):
     def derivative(weighted_sum):
         return 1 - np.tanh(weighted_sum)**2
 
+
+class Softmax(Activation):
+    def evaluation(weighted_sum):
+        e = np.exp(weighted_sum - np.max(weighted_sum))
+        return e/np.sum(e,axis=0)
+    def derivative(weighted_sum):
+        s = weighted_sum.reshape(-1,1)
+        return np.diagflat(s) - np.dot(s, s.T)
+    
+class Linear(Activation):
+    def evaluation(weighted_sum):
+        return weighted_sum
+    def derivative(weighted_sum):
+        return 1.0
+
 # print("1." ,Sigmoid.derivative(Sigmoid,np.array([5,7])))
 # print("2. " ,ReLU.derivative(ReLU,np.array([5,7])))
 # print("3. " ,TanH.derivative(TanH,np.array([5,7])))

@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 
 from Loss import *
 from NetworkBuilder import ANNBuilder
-from main import train_pso, test_pso, train_gradient_descent
+from main import train_pso, test_pso, train_gradient_descent, d_type
 
 import matplotlib.pyplot as plt
 import random
@@ -87,26 +87,43 @@ def preprocess_data(data, train_size):
     shuffle_rng = np.random.RandomState(123)
     shuffle_rng.shuffle(shuffle_idx)
     X, Y = X[shuffle_idx], Y[shuffle_idx]
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size= (1 - train_size), random_state=42)
+    X_train, X_temp, Y_train, Y_temp = train_test_split(X, Y, test_size= (1 - train_size), random_state=42)
+    X_val, X_test, Y_val, Y_test = train_test_split(X_temp, Y_temp, test_size=0.5, random_state=42)
+    problem_type, activation_fn, loss_fn, output_nodes = d_type(Y)
+    # st.session_state["problem_type"] = problem_type
+    st.session_state["activation_fn"] = activation_fn
+    st.session_state["loss_fn"] = loss_fn
+    st.session_state["output_nodes"] = output_nodes
 
-    return X_train, X_test, Y_train, Y_test
+    return X_train, X_val, X_test, Y_train, Y_val, Y_test
     
 
 # Function to train the model
 def train_model(method):
     ann = st.session_state.get('ann', None)
+    initial_params = st.session_state.get('initial_params', None)
     if not ann:
         st.warning("ANN not initialized. Please build the ANN first.")
         return None
+    # if not initial_params:
+    #     st.warning("ANN not initialized. Please build the ANN first.")
+    #     return None
 
     if method == "PSO":
-        ann = train_pso(ann, X_train, Y_train, population_size, iterations, alpha, beta, gamma, delta, neighborhood_size, optimization_problem, informant_type)
+        ann, swarm = train_pso(ann, initial_params, X_train, Y_train, population_size, iterations, alpha, beta, gamma, delta, neighborhood_size, optimization_problem, informant_type)
+        plt1 = swarm.plot_convergence()
+        plt2 = swarm.plot_particle_movement()
         accuracy = test_pso(ann, X_test, Y_test)
-        return accuracy 
+        st.pyplot(plt1)
+        st.pyplot(plt2)
+        return accuracy
     
     elif method == "Gradient Descent":
-        loss, accuracy = train_gradient_descent(ann, X_train, Y_train, gd_method, epochs, learning_rate, BinaryCrossEntropyLoss, batch_size)
+        loss_fn = st.session_state.get('loss_fn', None)
+        loss, accuracy, plt1, plt2 = train_gradient_descent(ann, X_train, Y_train, X_val, Y_val, gd_method, epochs, learning_rate, loss_fn, batch_size)
         print("HERE:::" , loss)
+        st.pyplot(plt1)
+        st.pyplot(plt2)
         result = f"Training Loss: {float(loss[0])}, Accuracy: {accuracy}"
         return result
     
@@ -128,20 +145,28 @@ if st.checkbox("Show Data"):
 #Train-Test split
 st.subheader("Train-Test Split")
 train_size = st.slider("Training data size", min_value=0.1, max_value=0.9, value=0.8, step=0.1)
-X_train, X_test, Y_train, Y_test = preprocess_data(data, train_size)
+X_train, X_val, X_test, Y_train, Y_val, Y_test = preprocess_data(data, train_size)
 
 #Initialize ANN
 st.subheader("Build your ANN")
 num_layers = st.number_input("Number of Layers", min_value=1, max_value=10, value=3)
 layer_nodes = []
 list_activation = []
-for i in range(num_layers):
+for i in range(num_layers-1):
     nodes = st.number_input(f"Nodes in layer {i+1}", min_value=1, max_value=100, value=3, key=f"layer_{i+1}")
     layer_nodes.append(nodes)
     activation_fn_name = st.selectbox(f"Activation function for layer {i+1}", list(activation_map_ui.keys()), key=f"activation_{i+1}")
     activation_fn = activation_map_ui[activation_fn_name] 
     list_activation.append(activation_fn)
-  
+
+output_nodes = st.session_state.get("output_nodes", 1)
+last_layer_nodes = st.number_input("Nodes in the last layer", min_value=1, max_value=100, value=output_nodes, key="last_layer", disabled=output_nodes is not None)
+layer_nodes.append(last_layer_nodes)
+
+default_activation_fn = st.session_state.get("activation_fn", Sigmoid)
+default_activation_key = next((key for key, value in activation_map_ui.items() if value == default_activation_fn), "Sigmoid")
+activation_fn_last_layer = st.selectbox("Activation function for the last layer", list(activation_map_ui.keys()), index=list(activation_map_ui.keys()).index(default_activation_key), key="last_activation", disabled=default_activation_fn is not None)
+list_activation.append(activation_map_ui[activation_fn_last_layer])
 
 #Initialize ANN button
 if st.button("Build ANN"):
@@ -149,6 +174,8 @@ if st.button("Build ANN"):
     initial_input = np.size(X_train[0])
     ann = ANNBuilder.build(num_layers,np.array(layer_nodes),np.array(list_activation), initial_input)
     st.session_state['ann'] = ann
+    initial_params = ann.get_param()
+    st.session_state['initial_params'] = initial_params
     st.write("ANN Initialized")
     fig = plot_neural_network(layer_nodes)
     st.pyplot(fig)
@@ -184,4 +211,5 @@ elif method == "Gradient Descent":
 
 if st.button("Train Model"):
     result = train_model(method)
+
     st.write("Fitness: ",result)  # Display results

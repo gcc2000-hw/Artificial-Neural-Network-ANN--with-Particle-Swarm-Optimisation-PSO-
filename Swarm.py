@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from Particle import Particle
 class Swarm:
     def __init__(self,adapter,alpha,beta,gamma,delta,population_size,iterations,neighbor_size,optimP = "min",neighbor_strat="r"):
@@ -16,6 +17,7 @@ class Swarm:
         self.gbestPos = np.random.randn(self.dim)
         self.gFit = np.inf if optimP == "min" else -np.inf
         self.optimizationP = optimP
+        self.gbest_values = []
     def update_neighborhood(self):
         if self.strat == "r":
             self.random_neighbors()
@@ -58,6 +60,7 @@ class Swarm:
                     self.gbestPos = p.position.copy()
             
     def optimize(self):
+        self.gbest_values = []
         for i in range(self.iteration):
             self.update_neighborhood()
             for p in self.particles:
@@ -70,11 +73,31 @@ class Swarm:
                             p.lbestPos = n.position.copy()
                         case "max" if n.fit > p.lFit:
                             p.lfit = n.fit
-                            p.lbestPos = n.position.copy()
+                            p.lbestPos = n.position.copy()               
             self.get_gbest()
+            self.gbest_values.append(self.gFit)
             for p in self.particles:
                 p.update_velocity(self.alpha,self.beta,self.gamma,self.delta,self.gbestPos)
                 p.update_position()
         
         
+    def plot_convergence(self):
+        fig, ax = plt.subplots()
+        ax.plot(range(1, self.iteration + 1), self.gbest_values, color ="blue")
+        ax.set_title("Convergence Plot")
+        ax.set_xlabel('Iteration')
+        ax.set_ylabel('Global Best Fitness Value')
+        ax.grid(True)
+        return fig
 
+    def plot_particle_movement(self):
+        fig, ax = plt.subplots()
+        for p in self.particles:
+            positions = np.array(p.position_history)
+            print("POSITION:",positions)
+            ax.scatter(positions[:, 0], positions[:, 1], s=10)
+        ax.set_title("Particle Movement")
+        # ax.xlabel('Position in Dimension 1')
+        # ax.ylabel('Position in Dimension 2')
+        ax.grid(True)
+        return fig

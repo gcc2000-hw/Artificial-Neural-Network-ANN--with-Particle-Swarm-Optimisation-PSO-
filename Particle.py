@@ -12,6 +12,7 @@ class Particle:
         self.optimizationP = optimP
         self.lbestPos = self.position.copy()
         self.lFit = -np.inf if optimP == "max" else self.fit
+        self.position_history = []
 #Set the neighbors
     def set_neighbours(self,neighbors):
         self.neighbours = neighbors
@@ -45,6 +46,7 @@ class Particle:
 #Move particle
     def update_position(self):
         self.position = self.position + self.velocity
+        self.position_history.append(self.position.copy())
     
     def is_lbest(self):
         match self.optimizationP:
