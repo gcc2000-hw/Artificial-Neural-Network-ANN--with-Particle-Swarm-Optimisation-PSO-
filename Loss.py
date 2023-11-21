@@ -36,7 +36,7 @@ class CrossEntropyLoss(Loss):
     def Evaluate(expected,predicted):
         epsilon = 1e-15
         predicted = np.clip(predicted, epsilon, 1. - epsilon)
-        return -np.mean(np.sum(expected * np.log(expected), axis=1))
+        return -np.mean(np.sum(expected * np.log(predicted), axis=1))
     def Derivate(self):
         pass
 

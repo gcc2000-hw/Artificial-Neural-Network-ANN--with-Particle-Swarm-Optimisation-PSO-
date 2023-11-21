@@ -159,8 +159,13 @@ for i in range(num_layers-1):
     activation_fn = activation_map_ui[activation_fn_name] 
     list_activation.append(activation_fn)
 
-output_nodes = st.session_state.get("output_nodes", 1)
-last_layer_nodes = st.number_input("Nodes in the last layer", min_value=1, max_value=100, value=output_nodes, key="last_layer", disabled=output_nodes is not None)
+output_nodes = st.session_state.get("output_nodes", None)
+if output_nodes is None:
+    output_nodes = 1  # Default value, you can change this as needed
+    last_layer_nodes = st.number_input("Nodes in the last layer", min_value=1, max_value=100, value=output_nodes, key="last_layer")
+else:
+    last_layer_nodes = st.number_input("Nodes in the last layer", min_value=1, max_value=100, value=output_nodes, key="last_layer", disabled=True)
+
 layer_nodes.append(last_layer_nodes)
 
 default_activation_fn = st.session_state.get("activation_fn", Sigmoid)

@@ -20,6 +20,8 @@ def d_type(Y):
         return ["multi_class", Softmax, CrossEntropyLoss, None]
     elif(len(unique_labels) > 2 and type(unique_labels[0]) == float) :
         return ["logistic", Linear, Mse, 1 ]
+    else:
+        return[None, None, None, None]
 def one_hot_encode(Y):
     number_of_classes = len(np.unique(Y,return_inverse=True)[0])
     one_hot = np.zeros((len(Y),number_of_classes))
