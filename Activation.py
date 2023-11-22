@@ -38,8 +38,7 @@ class Softmax(Activation):
         e = np.exp(weighted_sum - np.max(weighted_sum))
         return e/np.sum(e,axis=0)
     def derivative(weighted_sum):
-        s = weighted_sum.reshape(-1,1)
-        return np.diagflat(s) - np.dot(s, s.T)
+        pass
     
 class Linear(Activation):
     def evaluation(weighted_sum):

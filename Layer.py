@@ -41,14 +41,16 @@ class Layer:
         # dz = self.activation_fn.derivative(weighted_sum)
         
         delta = output_gradient * dz
+
         if dz is None:
             raise ValueError("The derivative of the activation function returned None.")
-        
         # dw is the derivative of the weighted sum
-        dw = np.dot(delta, self.X_in.T)
+        self.dw = np.dot(delta, self.X_in.T)
+        if output_gradient.ndim == 1:
+            output_gradient = output_gradient[:, np.newaxis]
         # db is the derivative of the bias
-        db = np.sum(delta, axis=1)
-        self.W -= rate * dw
-        self.B -= rate * db
+        self.db = np.sum(delta, axis=1)
+        self.W -= rate * self.dw
+        self.B -= rate * self.db
         input_gradient = np.dot(self.W.T, delta)
         return input_gradient

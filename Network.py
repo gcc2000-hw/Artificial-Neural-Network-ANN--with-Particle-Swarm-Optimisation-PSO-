@@ -26,3 +26,10 @@ class Network:
     def backward(self, delta, rate):
         for layer in reversed(self.layers):
             delta = layer.backward(delta, rate)
+
+    def get_gradients(self):
+        gradients = []
+        for layer in self.layers:
+            # Each tuple contains the gradients for the weights and biases of the layer
+            gradients.append((layer.dw, layer.db))
+        return gradients

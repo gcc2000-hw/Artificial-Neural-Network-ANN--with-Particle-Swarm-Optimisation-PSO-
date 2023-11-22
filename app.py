@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 
 from Loss import *
 from NetworkBuilder import ANNBuilder
-from main import train_pso, test_pso, train_gradient_descent, d_type
+from main import train_pso, test_pso, train_gradient_descent, d_type, one_hot_encode
 
 import matplotlib.pyplot as plt
 import random
@@ -22,7 +22,6 @@ informant_type_map= {
     "Distance": "d",
     "Hybrid" : "h"
 }
-
 # Generate a raondom color in hex
 def generate_random_color():
     return "#" + ''.join([random.choice('0123456789ABCDEF') for _ in range(6)])
@@ -83,14 +82,18 @@ def preprocess_data(data, train_size):
         unique_labels, Y_mapped = np.unique(Y,return_inverse=True)
         D = {label : i for i,label in enumerate(unique_labels)}
         Y = Y_mapped
+        print(type(Y[0]))
+    problem_type, activation_fn, loss_fn, output_nodes = d_type(Y)
+    if(problem_type == "multi-class"):
+        Y = one_hot_encode(Y)
     shuffle_idx = np.arange(Y.shape[0])
     shuffle_rng = np.random.RandomState(123)
     shuffle_rng.shuffle(shuffle_idx)
     X, Y = X[shuffle_idx], Y[shuffle_idx]
     X_train, X_temp, Y_train, Y_temp = train_test_split(X, Y, test_size= (1 - train_size), random_state=42)
     X_val, X_test, Y_val, Y_test = train_test_split(X_temp, Y_temp, test_size=0.5, random_state=42)
-    problem_type, activation_fn, loss_fn, output_nodes = d_type(Y)
     # st.session_state["problem_type"] = problem_type
+    print("henlo : ",loss_fn)
     st.session_state["activation_fn"] = activation_fn
     st.session_state["loss_fn"] = loss_fn
     st.session_state["output_nodes"] = output_nodes
@@ -110,7 +113,9 @@ def train_model(method):
     #     return None
 
     if method == "PSO":
-        ann, swarm = train_pso(ann, initial_params, X_train, Y_train, population_size, iterations, alpha, beta, gamma, delta, neighborhood_size, optimization_problem, informant_type)
+        loss_fn = st.session_state.get('loss_fn',None)
+        print (loss_fn)
+        ann, swarm = train_pso(loss_fn,ann, initial_params, X_train, Y_train,population_size, iterations, alpha, beta, gamma, delta, neighborhood_size, optimization_problem, informant_type)
         plt1 = swarm.plot_convergence()
         plt2 = swarm.plot_particle_movement()
         accuracy = test_pso(ann, X_test, Y_test)
@@ -120,11 +125,12 @@ def train_model(method):
     
     elif method == "Gradient Descent":
         loss_fn = st.session_state.get('loss_fn', None)
+        print("lossfun:",loss_fn )
         loss, accuracy, plt1, plt2 = train_gradient_descent(ann, X_train, Y_train, X_val, Y_val, gd_method, epochs, learning_rate, loss_fn, batch_size)
-        print("HERE:::" , loss)
+        print("HERE:::" , accuracy)
         st.pyplot(plt1)
         st.pyplot(plt2)
-        result = f"Training Loss: {float(loss[0])}, Accuracy: {accuracy}"
+        result = f"Training Loss: {float(loss)}, Accuracy: {accuracy}"
         return result
     
 
@@ -211,6 +217,8 @@ elif method == "Gradient Descent":
     learning_rate = st.number_input("Learning Rate", min_value=0.0001, max_value=1.0, value=0.01)
     if gd_method == "mini_batch":
         batch_size = st.number_input('Batch Size', min_value=1, max_value=100, value=32)
+    elif gd_method == "sgd":
+        batch_size = 1
 
 # Train button
 

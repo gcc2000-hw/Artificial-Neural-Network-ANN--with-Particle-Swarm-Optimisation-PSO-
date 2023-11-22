@@ -20,7 +20,7 @@ class BinaryCrossEntropyLoss(Loss):
     def Evaluate(expected, predicted):
         epsilon = 1e-15
         predicted = np.clip(predicted, epsilon, 1 - epsilon)
-        term0 = (1-expected) * np. log(1-predicted)
+        term0 = (1-expected) * np.log(1-predicted)
         term1 = expected * np. log(predicted)
         return -(term0 + term1)
         # term0 = (1-expected) * np.log(1-expected + 1e-7) 
@@ -37,8 +37,9 @@ class CrossEntropyLoss(Loss):
         epsilon = 1e-15
         predicted = np.clip(predicted, epsilon, 1. - epsilon)
         return -np.mean(np.sum(expected * np.log(predicted), axis=1))
-    def Derivate(self):
-        pass
+    def Derivate(expected,predicted):
+        return predicted - expected
+
 
 class Hinge(Loss):
     def Evaluate(expected, predicted):

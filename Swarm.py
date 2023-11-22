@@ -94,7 +94,7 @@ class Swarm:
         fig, ax = plt.subplots()
         for p in self.particles:
             positions = np.array(p.position_history)
-            print("POSITION:",positions)
+            # print("POSITION:",positions)
             ax.scatter(positions[:, 0], positions[:, 1], s=10)
         ax.set_title("Particle Movement")
         # ax.xlabel('Position in Dimension 1')

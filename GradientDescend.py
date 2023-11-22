@@ -34,7 +34,6 @@ def base_gd(ann, data, classes, rate, loss):
         # gets output after forward propogation
         t = classes[index]
         y = ann.forward(i)
-        print("y =" , y)
         L+= np.mean(loss.Evaluate(y, t))
 
         prediction = np.round(y)
@@ -97,11 +96,11 @@ def mini_batch(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss, batch_si
     return L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list
 
 # Decentralized Gradient Descent
-def dgd(ann, data, X_train, Y_train, X_val, Y_val, epochs, rate, loss):
-    L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list = gd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss, data.size)
+def dgd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss):
+    L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list = gd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss, X_train.size)
     return L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list
 
 # Stochastic Gradient Descent
 def sgd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss):
-    L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list = gd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss, 1)
+    L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list = gd(ann, X_train, Y_train, X_val, Y_val, epochs, rate, loss,1)
     return L, accuracy, accuracy_list, loss_list, val_accuracy_list, val_loss_list
