@@ -25,8 +25,8 @@ def d_type(Y):
     elif len(unique_labels) > 2 and isinstance(unique_labels[0], (float,np.float32, np.float64)):
         return ["logistic", Linear, Mse, 1]
     else:
-
         return [None, None, None, None]
+    
 def one_hot_encode(Y):
     label_encoder = LabelEncoder()
     Y_integer_encoded = label_encoder.fit_transform(Y)
@@ -34,6 +34,7 @@ def one_hot_encode(Y):
     one_hot = np.zeros((len(Y_integer_encoded), number_of_classes))
     one_hot[np.arange(len(Y_integer_encoded)), Y_integer_encoded] = 1
     return one_hot
+
 data=pd.read_csv("iris.data", delimiter=",")
 UCI_auth_data = np.genfromtxt("data_banknote_authentication.txt", delimiter=",")
 Ycol = data.columns[-1]
@@ -101,11 +102,9 @@ def test_pso(ann, X_test, Y_test):
     accuracy = np.mean(predicted_labels == Y_test)
     print(f"Accuracy on test set: {accuracy}")
     return accuracy
+
 def test_pso_multi(ann, X_test, Y_test):
     prediction = ann.forward(X_test)
-    print("X_test shape:", X_test.shape)
-    print("Y_test shape:", Y_test.shape)
-    print("Predicted probabilities shape:", prediction.shape)
     if prediction.shape != Y_test.shape:
         prediction = prediction.T
     predicted_labels = np.argmax(prediction, axis=1)

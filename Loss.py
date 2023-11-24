@@ -1,18 +1,19 @@
 import numpy as np
 from Activation import *
-
+#generic class for loss
 class Loss:
+    # initialize the expected label and predicted label
     def __init__(self, expected, predicted):
         self.expected = expected
         self.predicted = predicted
-    # def Evaluate(self):
-    #     pass
-    # def Derivate(self):
-    #     pass
 
+# Class for Mse loss (subclass of the generic loss function)
 class Mse(Loss):
+    #function to evaluate the Mean square error loss where Loss(ex, pe) = 1/2 (ex - pe)^2 (for a single loss) we dont take mean
+    #as we dont calculate the aggregate loss
     def Evaluate(expected, predicted):
         return 1/2 * (np.square(expected - predicted))
+    #function to evaluate the derivative of the loss (for backprop)
     def Derivate(expected, predicted):
         return predicted - expected
 
@@ -23,14 +24,11 @@ class BinaryCrossEntropyLoss(Loss):
         term0 = (1-expected) * np.log(1-predicted)
         term1 = expected * np. log(predicted)
         return -(term0 + term1)
-        # term0 = (1-expected) * np.log(1-expected + 1e-7) 
-        # term1 = predicted * np.log(expected + 1e-7) 
-        # return -(term0 + term1)
+
     def Derivate(expected, predicted):
         epsilon = 1e-15
         predicted = np.clip(predicted, epsilon, 1 - epsilon)
         return -(expected / predicted) + ((1 - expected) / (1 - predicted))
-        # return predicted/expected + (1 - predicted)/(1-expected)
     
 class CrossEntropyLoss(Loss):
     def Evaluate(expected,predicted):
