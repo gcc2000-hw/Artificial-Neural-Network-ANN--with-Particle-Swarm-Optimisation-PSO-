@@ -18,6 +18,8 @@ class Swarm:
         self.gFit = np.inf if optimP == "min" else -np.inf
         self.optimizationP = optimP
         self.gbest_values = []
+
+    # updates informants for a particle dependind on the selected strategy
     def update_neighborhood(self):
         if self.strat == "r":
             self.random_neighbors()
@@ -25,10 +27,14 @@ class Swarm:
             self.distance_neighbors()
         elif self.strat == "h":
             self.hybrid_neighbors()
+
+    # to select neighbours randomly
     def random_neighbors(self):
         for p in self.particles:
             neighbors =  np.random.choice([i for i in self.particles if p != i],self.neighbor_size,replace = False)
             p.set_neighbours(neighbors)
+
+    # selects neighbours based on distance
     def distance_neighbors(self):
         position = np.array([p.position for p in self.particles])
         for i,p in enumerate(self.particles):
@@ -36,6 +42,8 @@ class Swarm:
             dist[i] = np.inf
             index = np.argsort(dist)[:self.neighbor_size]
             p.set_neighbours([self.particles[j] for j in index])
+
+    # combines random and distance together
     def hybrid_neighbors(self):
         position = np.array([p.position for p in self.particles])
         for i,p in enumerate(self.particles):
@@ -49,6 +57,7 @@ class Swarm:
             total_dist = np.concatenate((index,index_rand))
             p.set_neighbours([self.particles[j] for j in total_dist])
 
+    # to update the global best position
     def get_gbest(self):
         for p in self.particles:
             match self.optimizationP:
@@ -58,7 +67,8 @@ class Swarm:
                 case "max" if p.fit > self.gFit:
                     self.gFit = p.fit
                     self.gbestPos = p.position.copy()
-            
+    
+    # optimization method
     def optimize(self):
         self.gbest_values = []
         for i in range(self.iteration):
@@ -79,8 +89,8 @@ class Swarm:
             for p in self.particles:
                 p.update_velocity(self.alpha,self.beta,self.gamma,self.delta,self.gbestPos)
                 p.update_position()
-        
-        
+    
+    # function to plot convergence graph
     def plot_convergence(self):
         fig, ax = plt.subplots()
         ax.plot(range(1, self.iteration + 1), self.gbest_values, color ="blue")
@@ -90,14 +100,12 @@ class Swarm:
         ax.grid(True)
         return fig
 
+    #  function to plot the movement of particles
     def plot_particle_movement(self):
         fig, ax = plt.subplots()
         for p in self.particles:
             positions = np.array(p.position_history)
-            # print("POSITION:",positions)
             ax.scatter(positions[:, 0], positions[:, 1], s=10)
         ax.set_title("Particle Movement")
-        # ax.xlabel('Position in Dimension 1')
-        # ax.ylabel('Position in Dimension 2')
         ax.grid(True)
         return fig

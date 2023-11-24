@@ -13,11 +13,10 @@ class Mse(Loss):
     #as we dont calculate the aggregate loss
     def Evaluate(expected, predicted):
         return 1/2 * (np.square(expected - predicted))
-    #function to evaluate the derivative of the loss (for backprop)
-    def Derivate(expected, predicted):
-        return predicted - expected
-
+    
+# class to evaluate the binary cross entropy loss
 class BinaryCrossEntropyLoss(Loss):
+    # function to evaluate binary cross entropy
     def Evaluate(expected, predicted):
         epsilon = 1e-15
         predicted = np.clip(predicted, epsilon, 1 - epsilon)
@@ -25,12 +24,9 @@ class BinaryCrossEntropyLoss(Loss):
         term1 = expected * np. log(predicted)
         return -(term0 + term1)
 
-    def Derivate(expected, predicted):
-        epsilon = 1e-15
-        predicted = np.clip(predicted, epsilon, 1 - epsilon)
-        return -(expected / predicted) + ((1 - expected) / (1 - predicted))
-    
+# class to evaluate the cross entropy loss
 class CrossEntropyLoss(Loss):
+    # function to evaluate cross entropy
     def Evaluate(expected,predicted):
         if predicted.shape != expected.shape:
             predicted = predicted.T
@@ -38,11 +34,8 @@ class CrossEntropyLoss(Loss):
         predicted = np.clip(predicted, epsilon, 1. - epsilon)
         ce_loss = -np.sum(expected * np.log(predicted)) / expected.shape[0]
         return ce_loss
-    def Derivate(expected,predicted):
-        return predicted - expected
 
+# class to evaluate the hinge loss
 class Hinge(Loss):
     def Evaluate(expected, predicted):
         return np.mean(np.maximum(0, 1-expected * predicted))
-    def Derivate(expected, predicted):
-        return np.where(expected*predicted<1,-expected,0)

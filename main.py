@@ -35,6 +35,18 @@ def one_hot_encode(Y):
     one_hot[np.arange(len(Y_integer_encoded)), Y_integer_encoded] = 1
     return one_hot
 
+def classification_scatter(f1,f2,p):
+    fig, ax = plt.subplots()
+    Scatter = ax.scatter(f1,f2,c=p,cmap='viridis')
+    legend1 = ax.legend(*Scatter.legend_elements(),loc="upper right", title="Classes")
+    ax.add_artist(legend1)
+
+    # Adding labels and title
+    ax.set_xlabel('Feature 1')
+    ax.set_ylabel('Feature 2')
+    ax.set_title('Classification Scatter Plot')
+    return fig
+
 data=pd.read_csv("iris.data", delimiter=",")
 UCI_auth_data = np.genfromtxt("data_banknote_authentication.txt", delimiter=",")
 Ycol = data.columns[-1]
@@ -97,22 +109,32 @@ def train_pso(loss_fn,ann,initial_params, X_train, Y_train, population_size = 10
     return ann, swarm
 
 def test_pso(ann, X_test, Y_test):
+    f1 = X_test[:,0]
+    f2 = X_test[:,1]
     prediction = ann.forward(X_test.T)
     predicted_labels = np.round(prediction)
+    plt = classification_scatter(f1,f2,predicted_labels)
     accuracy = np.mean(predicted_labels == Y_test)
     print(f"Accuracy on test set: {accuracy}")
-    return accuracy
+    return accuracy,plt
 
 def test_pso_multi(ann, X_test, Y_test):
     prediction = ann.forward(X_test)
+    feature_1 = X_test[:,0]
+    feature_2 = X_test[:,1]
+
+    print("X_test shape:", X_test.shape)
+    print("Y_test shape:", Y_test.shape)
+    print("Predicted probabilities shape:", prediction.shape)
     if prediction.shape != Y_test.shape:
         prediction = prediction.T
     predicted_labels = np.argmax(prediction, axis=1)
+    class_graph = classification_scatter(feature_1,feature_2,predicted_labels)
     print(prediction)
     labels = np.argmax(Y_test, axis=1)
     accuracy = np.mean(predicted_labels == labels)
     print(f"Accuracy on test set: {accuracy}")
-    return accuracy
+    return accuracy, class_graph
 
 
 def train_gradient_descent(ann, X_train, Y_train, X_val, Y_val, method='mini_batch', epochs=7, rate=0.01, loss = BinaryCrossEntropyLoss,  batch_size=32):

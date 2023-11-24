@@ -125,7 +125,7 @@ def preprocess_data(data, train_size, selected_columns):
     return X_train, X_val, X_test, Y_train, Y_val, Y_test
     
 # Function to train the model
-def train_model(method):
+def train_model():
     # reteive parameters from session state
     ann = st.session_state.get('ann', None)
     initial_params = st.session_state.get('initial_params', None)
@@ -145,13 +145,14 @@ def train_model(method):
     # check if the problem type is multi class
     if problem_type == "multi_class":
         # test the ann using multi clas test
-        accuracy = test_pso_multi(ann, X_test, Y_test)
+        accuracy,classification_plot= test_pso_multi(ann, X_test, Y_test)
     else:
         # test the ann on test set
-        accuracy = test_pso(ann, X_test, Y_test)
+        accuracy, classification_plot= test_pso(ann, X_test, Y_test)
     # display the graphs
     st.pyplot(plt1)
     st.pyplot(plt2)
+    st.pyplot(classification_plot)
     return accuracy
 
 # UI
@@ -255,10 +256,7 @@ if st.button("Build ANN"):
 
 st.markdown("---")
 
-# Method selection
-method = st.selectbox("Choose the training method:",
-                      ["PSO", "Gradient Descent"])
-
+# PSO Hyperparameters selection
 st.subheader("PSO Hyperparameters")
 population_size = st.number_input("Population Size", min_value=10, max_value=1000, value=100)
 iterations = st.number_input("Iterations", min_value=10, max_value=1000, value=100)
@@ -271,8 +269,6 @@ optimization_problem = st.selectbox("Optimization Problem", ["min", "max"])
 informant_type = st.selectbox("Informant Type", list(informant_type_map.keys()))
 
 # Train button
-
 if st.button("Train Model"):
-    result = train_model(method)
-
-    st.write("Fitness: ",result) 
+    result = train_model()
+    st.write("Accuracy: ",result) 
