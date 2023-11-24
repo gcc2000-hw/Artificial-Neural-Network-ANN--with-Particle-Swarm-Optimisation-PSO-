@@ -20,7 +20,8 @@ def d_type(Y):
     if len(unique_labels) == 2:
         return ["binary_class", None, BinaryCrossEntropyLoss, 1]
     elif len(unique_labels) > 2 and isinstance(unique_labels[0], (np.ndarray)):
-        return ["multi_class", Softmax, CrossEntropyLoss, None]
+        print(len(unique_labels))
+        return ["multi_class", Softmax, CrossEntropyLoss, len(unique_labels)]
     elif len(unique_labels) > 2 and isinstance(unique_labels[0], (float,np.float32, np.float64)):
         return ["logistic", Linear, Mse, 1]
     else:
@@ -153,7 +154,7 @@ X_val, X_test, Y_val, Y_test = train_test_split(X_temp, Y_temp, test_size=0.5, r
 
 # print(f"Best solution found: x = {swarm.gbestPos}, f(x) = {swarm.gFit}")
 initial_input = np.size(X[0])
-ann= ANNBuilder.build(4,np.array([1,1,1,3]),np.array([1,3,1,4]), initial_input)
+ann= ANNBuilder.build(4,np.array([2,4,3,3]),np.array([1,3,1,4]), initial_input)
 initial_params = ann.get_param()
 
 # test_gradient_descent(ann, X_test, Y_test) 
