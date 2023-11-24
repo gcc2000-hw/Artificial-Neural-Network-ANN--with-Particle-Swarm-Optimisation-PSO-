@@ -29,7 +29,7 @@ class BinaryCrossEntropyLoss(Loss):
     def Derivate(expected, predicted):
         epsilon = 1e-15
         predicted = np.clip(predicted, epsilon, 1 - epsilon)
-        return (predicted - expected) / (predicted * (1 - predicted))
+        return -(expected / predicted) + ((1 - expected) / (1 - predicted))
         # return predicted/expected + (1 - predicted)/(1-expected)
     
 class CrossEntropyLoss(Loss):

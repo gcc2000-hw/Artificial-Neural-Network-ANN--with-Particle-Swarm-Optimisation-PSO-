@@ -10,7 +10,7 @@ from main import train_pso, test_pso, train_gradient_descent, d_type, one_hot_en
 import matplotlib.pyplot as plt
 import random
 # import networkx as nx
-
+st.set_option('deprecation.showPyplotGlobalUse', False)
 activation_map_ui = {
     "Sigmoid": 1,
     "ReLU": 2,
@@ -74,15 +74,17 @@ def load_data(uploaded_file):
         return pd.read_csv("data_banknote_authentication.txt")
     
 # Function to preprocess the data
-def preprocess_data(data, train_size):
+def preprocess_data(data, train_size, selected_columns):
     Ycol = data.columns[-1]
-    X = data.drop(Ycol,axis=1).values
     Y = data[Ycol].values
+    X = data[selected_columns].values
+
+    
     if(isinstance(Y[0],str)):
         unique_labels, Y_mapped = np.unique(Y,return_inverse=True)
         D = {label : i for i,label in enumerate(unique_labels)}
         Y = Y_mapped
-        print(type(Y[0]))
+   
     problem_type, activation_fn, loss_fn, output_nodes = d_type(Y)
     if(problem_type == "multi-class"):
         Y = one_hot_encode(Y)
@@ -93,7 +95,7 @@ def preprocess_data(data, train_size):
     X_train, X_temp, Y_train, Y_temp = train_test_split(X, Y, test_size= (1 - train_size), random_state=42)
     X_val, X_test, Y_val, Y_test = train_test_split(X_temp, Y_temp, test_size=0.5, random_state=42)
     # st.session_state["problem_type"] = problem_type
-    print("henlo : ",loss_fn)
+
     st.session_state["activation_fn"] = activation_fn
     st.session_state["loss_fn"] = loss_fn
     st.session_state["output_nodes"] = output_nodes
@@ -112,27 +114,14 @@ def train_model(method):
     #     st.warning("ANN not initialized. Please build the ANN first.")
     #     return None
 
-    if method == "PSO":
-        loss_fn = st.session_state.get('loss_fn',None)
-        print (loss_fn)
-        ann, swarm = train_pso(loss_fn,ann, initial_params, X_train, Y_train,population_size, iterations, alpha, beta, gamma, delta, neighborhood_size, optimization_problem, informant_type)
-        plt1 = swarm.plot_convergence()
-        plt2 = swarm.plot_particle_movement()
-        accuracy = test_pso(ann, X_test, Y_test)
-        st.pyplot(plt1)
-        st.pyplot(plt2)
-        return accuracy
-    
-    elif method == "Gradient Descent":
-        loss_fn = st.session_state.get('loss_fn', None)
-        print("lossfun:",loss_fn )
-        loss, accuracy, plt1, plt2 = train_gradient_descent(ann, X_train, Y_train, X_val, Y_val, gd_method, epochs, learning_rate, loss_fn, batch_size)
-        print("HERE:::" , accuracy)
-        st.pyplot(plt1)
-        st.pyplot(plt2)
-        result = f"Training Loss: {float(loss)}, Accuracy: {accuracy}"
-        return result
-    
+    loss_fn = st.session_state.get('loss_fn',None)
+    ann, swarm = train_pso(loss_fn,ann, initial_params, X_train, Y_train,population_size, iterations, alpha, beta, gamma, delta, neighborhood_size, optimization_problem, informant_type)
+    plt1 = swarm.plot_convergence()
+    plt2 = swarm.plot_particle_movement()
+    accuracy = test_pso(ann, X_test, Y_test)
+    st.pyplot(plt1)
+    st.pyplot(plt2)
+    return accuracy
 
 
 # UI
@@ -147,11 +136,16 @@ data = load_data(uploaded_file)
 if st.checkbox("Show Data"):
     st.subheader("Dataset")
     st.dataframe(data)
+if data is not None:
+    all_columns = data.columns[:-1].tolist()
+    selected_columns = st.multiselect("Select columns for training", all_columns, default=all_columns)
+else:
+    selected_columns = []
 
 #Train-Test split
 st.subheader("Train-Test Split")
 train_size = st.slider("Training data size", min_value=0.1, max_value=0.9, value=0.8, step=0.1)
-X_train, X_val, X_test, Y_train, Y_val, Y_test = preprocess_data(data, train_size)
+X_train, X_val, X_test, Y_train, Y_val, Y_test = preprocess_data(data, train_size, selected_columns)
 
 #Initialize ANN
 st.subheader("Build your ANN")
@@ -167,7 +161,7 @@ for i in range(num_layers-1):
 
 output_nodes = st.session_state.get("output_nodes", None)
 if output_nodes is None:
-    output_nodes = 1  # Default value, you can change this as needed
+    output_nodes = 1 
     last_layer_nodes = st.number_input("Nodes in the last layer", min_value=1, max_value=100, value=output_nodes, key="last_layer")
 else:
     last_layer_nodes = st.number_input("Nodes in the last layer", min_value=1, max_value=100, value=output_nodes, key="last_layer", disabled=True)
@@ -197,28 +191,30 @@ st.markdown("---")
 method = st.selectbox("Choose the training method:",
                       ["PSO", "Gradient Descent"])
 
-if method == "PSO":
+# if method == "PSO":
     # Particle Swarm Hyperparameters
-    st.subheader("PSO Hyperparameters")
-    population_size = st.number_input("Population Size", min_value=10, max_value=1000, value=100)
-    iterations = st.number_input("Iterations", min_value=10, max_value=1000, value=100)
-    alpha = st.number_input("Alpha", min_value=0.0, max_value=1000.0, value=0.2)
-    beta = st.number_input("Beta", min_value=0.0, max_value=2.0, value=1.0)
-    gamma = st.number_input("Gamma", min_value=0.0, max_value=2.0, value=2.0,)
-    delta = st.number_input("Delta", min_value=0.0, max_value=2.0, value=1.0)
-    neighborhood_size = st.number_input("Neighbourhood Size", min_value=5, max_value=20, value= 9)
-    optimization_problem = st.selectbox("Optimization Problem", ["min", "max"])
-    informant_type = st.selectbox("Informant Type", list(informant_type_map.keys()))
-elif method == "Gradient Descent":
-    # Gradient Descent Hyperparameters
-    st.subheader("Gradient Descent Hyperparameters")
-    gd_method = st.selectbox("GD Method", ["mini_batch", "dgd", "sgd"])
-    epochs = st.number_input("Epochs", min_value=1, max_value = 100, value = 100)
-    learning_rate = st.number_input("Learning Rate", min_value=0.0001, max_value=1.0, value=0.01)
-    if gd_method == "mini_batch":
-        batch_size = st.number_input('Batch Size', min_value=1, max_value=100, value=32)
-    elif gd_method == "sgd":
-        batch_size = 1
+st.subheader("PSO Hyperparameters")
+population_size = st.number_input("Population Size", min_value=10, max_value=1000, value=100)
+iterations = st.number_input("Iterations", min_value=10, max_value=1000, value=100)
+alpha = st.number_input("Alpha", min_value=0.0, max_value=1000.0, value=0.2)
+beta = st.number_input("Beta", min_value=0.0, max_value=2.0, value=1.0)
+gamma = st.number_input("Gamma", min_value=0.0, max_value=2.0, value=2.0,)
+delta = st.number_input("Delta", min_value=0.0, max_value=2.0, value=1.0)
+neighborhood_size = st.number_input("Neighbourhood Size", min_value=2, max_value=200, value= 20)
+optimization_problem = st.selectbox("Optimization Problem", ["min", "max"])
+informant_type = st.selectbox("Informant Type", list(informant_type_map.keys()))
+# elif method == "Gradient Descent":
+#     # Gradient Descent Hyperparameters
+#     st.subheader("Gradient Descent Hyperparameters")
+#     gd_method = st.selectbox("GD Method", ["mini_batch", "dgd", "sgd"])
+#     epochs = st.number_input("Epochs", min_value=1, max_value = 1000, value = 100)
+#     learning_rate = st.number_input("Learning Rate", min_value=0.00001, max_value=1.0, value=0.001)
+#     if gd_method == "mini_batch":
+#         batch_size = st.number_input('Batch Size', min_value=1, max_value=100, value=32)
+#     elif gd_method == "sgd":
+#         batch_size = 1
+#     else:
+#         batch_size = 1
 
 # Train button
 

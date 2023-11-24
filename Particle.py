@@ -13,7 +13,7 @@ class Particle:
         self.lbestPos = self.position.copy()
         self.lFit = -np.inf if optimP == "max" else self.fit
         self.position_history = []
-#Set the neighbors
+    #Set the neighbors
     def set_neighbours(self,neighbors):
         self.neighbours = neighbors
 
@@ -33,7 +33,7 @@ class Particle:
                     self.pbestPos = self.position.copy()
 
 
-#Update velocity
+    #Update velocity
     def update_velocity(self,alpha,beta,gamma,delta,gbestPos):
         r1 = np.random.rand(self.dim)
         r2 = np.random.rand(self.dim)
@@ -43,7 +43,7 @@ class Particle:
         social_comp = gamma * (self.lbestPos - self.position)
         global_comp = delta * (gbestPos - self.position)
         self.velocity = inertia_comp + (r1*cog_comp) + (r2*social_comp) + (r3*global_comp)
-#Move particle
+    #Move particle
     def update_position(self):
         self.position = self.position + self.velocity
         self.position_history.append(self.position.copy())
