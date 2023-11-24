@@ -1,10 +1,11 @@
 import numpy as np
-from Activation import Sigmoid, ReLU, TanH
+from Activation import Sigmoid, ReLU, TanH, Softmax
 
 activation_map = {
         1: Sigmoid,
         2: ReLU,
-        3: TanH
+        3: TanH,
+        4: Softmax
     }
 #2,1 
 class Layer:
@@ -27,6 +28,8 @@ class Layer:
     def forward(self, X_in):
         if X_in.ndim == 1:
             X_in = X_in.reshape(-1, 1)
+        if self.W.shape[1] != X_in.shape[0]:
+            X_in = X_in.T
         self.X_in = X_in
         weighted_sum = np.dot(self.W, X_in)+self.B[:, np.newaxis]
         out = self.activation_fn.evaluation(weighted_sum)

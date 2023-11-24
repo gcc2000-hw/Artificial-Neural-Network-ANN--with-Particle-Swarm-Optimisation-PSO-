@@ -6,7 +6,6 @@ from Loss import *
 from NetworkBuilder import ANNBuilder
 import pandas as pd
 from Activation import *
-from GradientDescend import *
 from Layer import *
 from Swarm import Swarm
 from Adapter import adapter

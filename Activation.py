@@ -35,8 +35,8 @@ class TanH(Activation):
 
 class Softmax(Activation):
     def evaluation(weighted_sum):
-        e = np.exp(weighted_sum - np.max(weighted_sum))
-        return e/np.sum(e,axis=0)
+        e = np.exp(weighted_sum - np.max(weighted_sum, axis = 1, keepdims=True))
+        return e/np.sum(e,axis=1, keepdims=True)
     def derivative(weighted_sum):
         pass
     
