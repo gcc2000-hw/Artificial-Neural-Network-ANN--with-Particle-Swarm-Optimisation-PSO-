@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 
 from Loss import *
 from NetworkBuilder import ANNBuilder
-from main import train_pso, test_pso, test_pso_multi, train_gradient_descent, d_type, one_hot_encode
+from main import train_pso, test_pso, test_pso_multi, d_type, one_hot_encode
 
 import matplotlib.pyplot as plt
 import random

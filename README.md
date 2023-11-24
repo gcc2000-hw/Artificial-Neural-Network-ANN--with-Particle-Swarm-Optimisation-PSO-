@@ -13,11 +13,13 @@ These instructions will get you a copy of the project up and running on your loc
 
 A step by step guide on how to get a development environment running
 
+
 **1. Clone the Repository**
+
+Clone the repository or download the folder and go into the cloned folder from terminal
 
 ```python
 git clone https://github.com/gcc2000-hw/Artificial-Neural-Network-ANN--with-Particle-Swarm-Optimisation-PSO-
-cd Artificial-Neural-Network-ANN--with-Particle-Swarm-Optimisation-PSO-
 ```
 
 
