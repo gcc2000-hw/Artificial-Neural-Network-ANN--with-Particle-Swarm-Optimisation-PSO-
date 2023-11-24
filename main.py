@@ -10,41 +10,42 @@ from Layer import *
 from Swarm import Swarm
 from Adapter import adapter
 from sklearn.model_selection import train_test_split 
+from sklearn.preprocessing import LabelEncoder
+
+# from sklearn.preprocessing import OneHotEncoder 
 
 # name, activation function, loss, last layer node if none let them choose
 def d_type(Y):
-    unique_labels, _ = np.unique(Y, return_inverse=True)
+    unique_labels = np.unique(Y, axis=0)
     if len(unique_labels) == 2:
         return ["binary_class", None, BinaryCrossEntropyLoss, 1]
-    elif len(unique_labels) > 2 and isinstance(unique_labels[0], (int, np.int64)):
+    elif len(unique_labels) > 2 and isinstance(unique_labels[0], (np.ndarray)):
         return ["multi_class", Softmax, CrossEntropyLoss, None]
-    elif len(unique_labels) > 2 and isinstance(unique_labels[0], (float, np.float64)):
+    elif len(unique_labels) > 2 and isinstance(unique_labels[0], (float,np.float32, np.float64)):
         return ["logistic", Linear, Mse, 1]
     else:
+
         return [None, None, None, None]
 def one_hot_encode(Y):
-    number_of_classes = len(np.unique(Y,return_inverse=True)[0])
-    one_hot = np.zeros((len(Y),number_of_classes))
-    one_hot[np.arange(len(Y),Y)] = 1
-    print("onehot")
+    label_encoder = LabelEncoder()
+    Y_integer_encoded = label_encoder.fit_transform(Y)
+    number_of_classes = len(np.unique(Y_integer_encoded))
+    one_hot = np.zeros((len(Y_integer_encoded), number_of_classes))
+    one_hot[np.arange(len(Y_integer_encoded)), Y_integer_encoded] = 1
     return one_hot
-data=pd.read_csv("data_banknote_authentication.txt", delimiter=",")
+data=pd.read_csv("iris.data", delimiter=",")
 UCI_auth_data = np.genfromtxt("data_banknote_authentication.txt", delimiter=",")
 Ycol = data.columns[-1]
 X = data.drop(Ycol,axis=1).values
 Y = data[Ycol].values
 if(isinstance(Y[0],str)):
-    unique_labels, Y_mapped = np.unique(Y,return_inverse=True)
-    D = {label : i for i,label in enumerate(unique_labels)}
-    Y = [int(i) for i in Y_mapped]
-    print(type(Y[0]))
-data_type = d_type(Y)
-if(data_type[0] == "multi-class"):
     Y = one_hot_encode(Y)
+    unique_labels = np.unique(Y, axis=0)
+    print(type(unique_labels[0]))
 
-
+data_type = d_type(Y)
+    # Y = one_hot_encode(Y)
 def evaluate_ann(params, ann, X, Y, loss_function):
-    print("here :  ",loss_function)
     ann.update_param(params)
     predictions = ann.forward(X.T)
     losses = loss_function.Evaluate(Y, predictions)
@@ -80,7 +81,7 @@ def plot_loss(loss_list, val_loss_list):
     ax.set_title("Training and Validation Loss over Epochs")
     ax.legend()
 
-def train_pso(loss_fn,ann,initial_params, X_train, Y_train, population_size = 100, iterations = 100, alpha = 0.2, beta = 1.0, gamma = 2.0,  delta = 1.0, neighborhood_size = 9, optimP = "min", informant_type = "r" ):
+def train_pso(loss_fn,ann,initial_params, X_train, Y_train, population_size = 100, iterations = 100, alpha = 0.2, beta = 1.0, gamma = 2.0,  delta = 1.0, neighborhood_size = 8, optimP = "min", informant_type = "h" ):
     # Shuffling & train/test split
     # initial_input = np.size(X[0])
     # ann = ANNBuilder.build(3, np.array([1, 3, 3]), np.array([3, 1, 2]), initial_input)
@@ -99,6 +100,20 @@ def test_pso(ann, X_test, Y_test):
     accuracy = np.mean(predicted_labels == Y_test)
     print(f"Accuracy on test set: {accuracy}")
     return accuracy
+def test_pso_multi(ann, X_test, Y_test):
+    prediction = ann.forward(X_test)
+    print("X_test shape:", X_test.shape)
+    print("Y_test shape:", Y_test.shape)
+    print("Predicted probabilities shape:", prediction.shape)
+    if prediction.shape != Y_test.shape:
+        prediction = prediction.T
+    predicted_labels = np.argmax(prediction, axis=1)
+    print(prediction)
+    labels = np.argmax(Y_test, axis=1)
+    accuracy = np.mean(predicted_labels == labels)
+    print(f"Accuracy on test set: {accuracy}")
+    return accuracy
+
 
 def train_gradient_descent(ann, X_train, Y_train, X_val, Y_val, method='mini_batch', epochs=7, rate=0.01, loss = BinaryCrossEntropyLoss,  batch_size=32):
 
@@ -126,7 +141,6 @@ def test_gradient_descent(ann, X_test, Y_test):
     print(f"Accuracy on test set: {accuracy}")
 
     return accuracy
-
 shuffle_idx = np.arange(Y.shape[0])
 shuffle_rng = np.random.RandomState(123)
 shuffle_rng.shuffle(shuffle_idx)
@@ -138,18 +152,25 @@ X_val, X_test, Y_val, Y_test = train_test_split(X_temp, Y_temp, test_size=0.5, r
 
 # print(f"Best solution found: x = {swarm.gbestPos}, f(x) = {swarm.gFit}")
 initial_input = np.size(X[0])
-ann= ANNBuilder.build(3,np.array([2,2,1]),np.array([1,1,1]), initial_input)
+ann= ANNBuilder.build(4,np.array([1,1,1,3]),np.array([1,3,1,4]), initial_input)
 initial_params = ann.get_param()
+
 # test_gradient_descent(ann, X_test, Y_test) 
 # train_gradient_descent(X_train, Y_train, method='mini_batch', epochs=7, rate=0.01, loss = Mse,  batch_size=32)
 # loss, accuracy = mini_batch(ann, X, Y, 7, 0.0001, Mse, 196)
 # print(loss)
 # print(accuracy)
 # Train the network
-# ann, swarm = train_pso(data_type[2],ann,initial_params, X_train, Y_train)
-# swarm.plot_convergence()
-# swarm.plot_particle_movement()
-# test_pso(ann, X_test, Y_test)
+ann, swarm = train_pso(data_type[2],ann,initial_params, X_train, Y_train)
+swarm.plot_convergence()
+swarm.plot_particle_movement()
+
+test_pso_multi(ann, X_test, Y_test)
+
+
+
+
+
 # loss, accuracy = train_gradient_descent(ann,X_train, Y_train, X_val, Y_val, method='mini_batch', epochs=50, rate=0.0001, loss=BinaryCrossEntropyLoss, batch_size=32)
 # print("Training Loss:", loss)
 # print("Training Accuracy:", accuracy)
