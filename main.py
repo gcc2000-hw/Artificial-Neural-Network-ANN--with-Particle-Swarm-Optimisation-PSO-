@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 from Activation import *
 from Loss import *
 from NetworkBuilder import ANNBuilder
 import pandas as pd
 from Activation import *
-from GradientDescend import *
 from Layer import *
 from Swarm import Swarm
 from Adapter import adapter
@@ -82,16 +82,16 @@ def plot_loss(loss_list, val_loss_list):
     ax.legend()
 
 def train_pso(loss_fn,ann,initial_params, X_train, Y_train, population_size = 100, iterations = 100, alpha = 0.2, beta = 1.0, gamma = 2.0,  delta = 1.0, neighborhood_size = 8, optimP = "min", informant_type = "h" ):
-    # Shuffling & train/test split
-    # initial_input = np.size(X[0])
-    # ann = ANNBuilder.build(3, np.array([1, 3, 3]), np.array([3, 1, 2]), initial_input)
-    # initial_params = ann.get_param()
+    start_time = time.time()
     Adapter = adapter(lambda params: evaluate_ann(params,ann,X_train,Y_train,loss_fn),initial_params)
     swarm = Swarm(Adapter, alpha, beta, gamma, delta,population_size, iterations, neighborhood_size, optimP, informant_type)
 
     # Run the optimization
     swarm.optimize() 
     ann.update_param(swarm.gbestPos)
+    end_time = time.time()
+    execution_time = end_time - start_time 
+    print(f"PSO executed in: {execution_time} seconds")
     return ann, swarm
 
 def test_pso(ann, X_test, Y_test):
@@ -148,6 +148,7 @@ X, Y = X[shuffle_idx], Y[shuffle_idx]
 
 # X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 X_train, X_temp, Y_train, Y_temp = train_test_split(X, Y, test_size=0.3, random_state=42)
+X_sample, Y_sample = X_train[:10], Y_train[:10]
 X_val, X_test, Y_val, Y_test = train_test_split(X_temp, Y_temp, test_size=0.5, random_state=42)
 
 # print(f"Best solution found: x = {swarm.gbestPos}, f(x) = {swarm.gFit}")

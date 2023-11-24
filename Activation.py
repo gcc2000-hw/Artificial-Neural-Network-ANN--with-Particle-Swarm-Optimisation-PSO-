@@ -35,8 +35,8 @@ class TanH(Activation):
 
 class Softmax(Activation):
     def evaluation(weighted_sum):
-        e = np.exp(weighted_sum - np.max(weighted_sum))
-        return e/np.sum(e,axis=0)
+        e = np.exp(weighted_sum - np.max(weighted_sum, axis = 1, keepdims=True))
+        return e/np.sum(e,axis=1, keepdims=True)
     def derivative(weighted_sum):
         pass
     
@@ -46,10 +46,6 @@ class Linear(Activation):
     def derivative(weighted_sum):
         return 1.0
 
-# print("1." ,Sigmoid.derivative(Sigmoid,np.array([5,7])))
-# print("2. " ,ReLU.derivative(ReLU,np.array([5,7])))
-# print("3. " ,TanH.derivative(TanH,np.array([5,7])))
-# print(ReLU.derivative(ReLU,np.array([1,-2,3,4])))
 '''
 References
 1. https://dustinstansbury.github.io/theclevermachine/derivation-common-neural-network-activation-functions
